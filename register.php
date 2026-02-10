@@ -5,10 +5,7 @@ ob_start();
 <script src="js/jquery.js"></script>
 <script>
     $(document).ready(function() {
-
-
         $('#regform').submit(function(e) {
-
             var fname = $('#firstName').val();
             if (fname == "") {
                 $('#fname_error').text("Firstname is required")
