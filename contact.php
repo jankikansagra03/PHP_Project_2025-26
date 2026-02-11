@@ -21,20 +21,21 @@ ob_start();
                     <div class="row">
                         <div class="col-md-6 mb-4">
                             <label for="name" class="form-label fw-semibold">Your Name</label>
-                            <input type="text" class="form-control form-control-lg" id="name" name="name" required>
+                            <input type="text" class="form-control form-control-lg" id="name" name="fname" data-validation="required min" data-min="2">
+                            <span class="text-danger" id="fname_error"></span>
                         </div>
                         <div class="col-md-6 mb-4">
                             <label for="email" class="form-label fw-semibold">Email</label>
-                            <input type="email" class="form-control form-control-lg" id="email" name="email" required>
+                            <input type="text" class="form-control form-control-lg" id="email" name="email">
                         </div>
                     </div>
                     <div class="mb-4">
                         <label for="subject" class="form-label fw-semibold">Subject</label>
-                        <input type="text" class="form-control form-control-lg" id="subject" name="subject" required>
+                        <input type="text" class="form-control form-control-lg" id="subject" name="subject">
                     </div>
                     <div class="mb-4">
                         <label for="message" class="form-label fw-semibold">Message</label>
-                        <textarea class="form-control form-control-lg" id="message" name="message" rows="6" required></textarea>
+                        <textarea class="form-control form-control-lg" id="message" name="message" rows="6"></textarea>
                     </div>
                     <button type="submit" class="btn btn-gradient btn-lg w-100">Send Message</button>
                 </form>

@@ -14,15 +14,17 @@ ob_start();
                     <p class="text-muted">Login to your account</p>
                 </div>
 
-                <form action="" method="POST">
+                <form action="test.php" method="POST">
                     <div class="mb-4">
                         <label for="email" class="form-label fw-semibold">Email Address</label>
-                        <input type="email" class="form-control form-control-lg" id="email" name="email" placeholder="Enter your email" required>
+                        <input type="text" class="form-control  " id="email" name="email" placeholder="Enter your email" data-validation="required email">
+                        <span id="email_error"></span>
                     </div>
 
                     <div class="mb-4">
                         <label for="password" class="form-label fw-semibold">Password</label>
-                        <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="Enter your password" required>
+                        <input type="password" class="form-control  " id="password" name="password" placeholder="Enter your password" data-validation="required">
+                        <span id="password_error"></span>
                     </div>
 
                     <div class="mb-4 d-flex justify-content-between align-items-center">

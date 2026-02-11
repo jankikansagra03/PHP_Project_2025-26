@@ -8,11 +8,13 @@
 
     <!-- Bootstrap CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script src="js/bootstrap.bundle.min.js"></script>
 
 
     <!-- FontAwesome -->
     <link rel="stylesheet" href="fontawesome/css/all.css">
     <script src="js/jquery.js"></script>
+    <script src="js/validate.js"></script>
     <!-- Custom CSS -->
     <style>
         :root {
