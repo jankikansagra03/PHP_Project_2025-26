@@ -208,7 +208,7 @@
 
     <!-- Main Content -->
     <main>
-        <div class="container">
+        <div class="container-fluid px-5">
             <?php echo $content; ?>
         </div>
     </main>

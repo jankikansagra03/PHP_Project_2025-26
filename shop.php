@@ -26,7 +26,7 @@ ob_start();
     foreach ($products as $index => $product):
         $delay = ($index % 3) * 0.1;
     ?>
-        <div class="col-md-6 col-lg-4 fade-in-up" style="animation-delay: <?php echo $delay; ?>s;">
+        <div class="col-md-6 col-lg-3 fade-in-up" style="animation-delay: <?php echo $delay; ?>s;">
             <div class="card h-100 border-0">
                 <div class="card-body p-4">
                     <div class="mb-3 text-center">
@@ -45,6 +45,7 @@ ob_start();
         </div>
     <?php endforeach; ?>
 </div>
+
 
 <?php
 $content = ob_get_clean();
