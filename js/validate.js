@@ -40,6 +40,15 @@ $(document).ready(function () {
           errorMessage = `This field must be at most ${maxLength} characters long.`;
         }
 
+        if(validationType.includes('alphabetic'))
+        {
+          alphabet_regex = /^[a-zA-Z\s]+$/;
+          if(!alphabet_regex.test(value))
+          {
+            errorMessage = "Please enter alphabetic characters only.";
+          }
+        }
+
         // Email format validation
         if (validationType.includes("email")) {
           const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w]{2,4}$/;
@@ -59,7 +68,7 @@ $(document).ready(function () {
         // Strong password validation (at least 8 chars, 1 upper, 1 lower, 1 number, 1 special)
         if (validationType.includes("strongPassword")) {
           const passwordRegex =
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
           if (!passwordRegex.test(value)) {
             errorMessage =
               "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.";

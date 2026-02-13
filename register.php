@@ -91,14 +91,14 @@ ob_start();
                         <div class="row">
                             <div class="col-lg-6 mb-4">
                                 <label for="firstName" class="form-label fw-semibold">First Name</label>
-                                <input type="text" class="form-control  " id="firstName" name="firstName" placeholder="John" data-validation="required min" data-min="2">
+                                <input type="text" class="form-control  " id="firstName" name="firstName" placeholder="John" data-validation="required min alphabetic" data-min="2">
                                 <span id="firstName_error" class="text-danger"> </span>
                             </div>
 
 
                             <div class="col-lg-6 mb-4">
                                 <label for="lastName" class="form-label fw-semibold">Last Name</label>
-                                <input type="text" class="form-control  " id="lastName" name="lastName" placeholder="Doe" data-validation="required min" data-min="2">
+                                <input type="text" class="form-control  " id="lastName" name="lastName" placeholder="Doe" data-validation="required min alphabetic" data-min="2">
                                 <span id="lastName_error" class="text-danger"> </span>
                             </div>
                         </div>
@@ -110,7 +110,7 @@ ob_start();
                         </div>
                         <div class="mb-4">
                             <label for="phone" class="form-label fw-semibold">Phone Number</label>
-                            <input type="text" class="form-control  " id="phone" name="phone" placeholder="Enter your phone number" data-validation="required number min max">
+                            <input type="text" class="form-control  " id="phone" name="phone" placeholder="Enter your phone number" data-validation="required number min max" data-min="10" data-max="10">
                             <span id="phone_error"></span>
                         </div>
 

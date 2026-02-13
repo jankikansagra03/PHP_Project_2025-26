@@ -24,21 +24,24 @@ ob_start();
                         <div class="row">
                             <div class="col-md-6 mb-4">
                                 <label for="name" class="form-label fw-semibold">Your Name</label>
-                                <input type="text" class="form-control form-control-lg" id="name" name="fname" data-validation="required min" data-min="2">
+                                <input type="text" class="form-control form-control-lg" id="name" name="fname" data-validation="required min alphabetic" data-min="2">
                                 <span class="text-danger" id="fname_error"></span>
                             </div>
                             <div class="col-md-6 mb-4">
                                 <label for="email" class="form-label fw-semibold">Email</label>
-                                <input type="text" class="form-control form-control-lg" id="email" name="email">
+                                <input type="text" class="form-control form-control-lg" id="email" name="email" data-validation="required email">
+                                <span id="email_error"></span>
                             </div>
                         </div>
                         <div class="mb-4">
                             <label for="subject" class="form-label fw-semibold">Subject</label>
-                            <input type="text" class="form-control form-control-lg" id="subject" name="subject">
+                            <input type="text" class="form-control form-control-lg" id="subject" name="subject" data-validation="required min" data-min="3">
+                            <span id="subject_error"></span>
                         </div>
                         <div class="mb-4">
                             <label for="message" class="form-label fw-semibold">Message</label>
-                            <textarea class="form-control form-control-lg" id="message" name="message" rows="6"></textarea>
+                            <textarea class="form-control form-control-lg" id="message" name="message" rows="6" data-validation="required min" data-min="10"></textarea>
+                            <span id="message_error"></span>
                         </div>
                         <button type="submit" class="btn btn-gradient btn-lg w-100">Send Message</button>
                     </form>

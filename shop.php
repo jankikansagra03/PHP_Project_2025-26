@@ -21,6 +21,8 @@ ob_start();
         ['name' => 'Premium Product 4', 'price' => '$199.99', 'desc' => 'Top-tier performance and reliability'],
         ['name' => 'Premium Product 5', 'price' => '$129.99', 'desc' => 'Innovation meets practicality'],
         ['name' => 'Premium Product 6', 'price' => '$89.99', 'desc' => 'Perfect blend of quality and value'],
+        ['name' => 'Premium Product 7', 'price' => '$129.99', 'desc' => 'Innovation meets practicality'],
+        ['name' => 'Premium Product 8', 'price' => '$89.99', 'desc' => 'Perfect blend of quality and value'],
     ];
 
     foreach ($products as $index => $product):
