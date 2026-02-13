@@ -86,7 +86,7 @@ ob_start();
                     <p class="text-muted">Join us today and get started</p>
                 </div>
 
-                <form action="" method="get" id="regform" onsubmit="validateForm()">
+                <form action="" method="get" id="regform" enctype="multipart/form-data">
                     <div class="row">
                         <div class="col-lg-6 mb-4">
                             <label for="firstName" class="form-label fw-semibold">First Name</label>
@@ -104,37 +104,43 @@ ob_start();
 
                     <div class="mb-4">
                         <label for="email" class="form-label fw-semibold">Email Address</label>
-                        <input type="text" class="form-control  " id="email" name="email" placeholder="john.doe@example.com">
+                        <input type="text" class="form-control  " id="email" name="email" placeholder="john.doe@example.com" data-validation="required email">
+                        <span id="email_error"></span>
                     </div>
                     <div class="mb-4">
                         <label for="phone" class="form-label fw-semibold">Phone Number</label>
-                        <input type="text" class="form-control  " id="phone" name="phone" placeholder="Enter your phone number">
+                        <input type="text" class="form-control  " id="phone" name="phone" placeholder="Enter your phone number" data-validation="required number min max">
+                        <span id="phone_error"></span>
                     </div>
 
                     <div class="mb-4">
-                        <label for="password" class="form-label fw-semibold">Password</label>
-                        <input type="password" class="form-control  " id="password" name="password" placeholder="Create a strong password">
-                        <div class="form-text">Password must be at least 8 characters long</div>
+                        <label for="confirmPassword_confirm" class="form-label fw-semibold">Password</label>
+                        <input type="password" class="form-control" id="confirmPassword_confirm" name="password" placeholder="Create a strong password" data-validation="required strongPassword">
+                        <span id="password_error"></span>
+
                     </div>
 
                     <div class="mb-4">
-                        <label for="confirmPassword" class="form-label fw-semibold">Confirm Password</label>
-                        <input type="password" class="form-control  " id="confirmPassword" name="confirmPassword" placeholder="Re-enter your password">
+                        <label for="password" class="form-label fw-semibold">Confirm Password</label>
+                        <input type="password" class="form-control  " id="password" name="confirmPassword" placeholder="Re-enter your password" data-validation="required confirmPassword">
+                        <span id="confirmPassword_error"></span>
                     </div>
 
                     <div class="row">
                         <div class="col-lg-6 mb-4">
                             <label for="gender" class="form-label fw-semibold">Gender</label>
-                            <select class="form-select" id="gender" name="gender">
+                            <select class="form-select" id="gender" name="gender" data-validation="required select">
                                 <option value="">Select Gender</option>
                                 <option value="male">Male</option>
                                 <option value="female">Female</option>
                                 <option value="other">Other</option>
                             </select>
+                            <span id="gender_error"></span>
                         </div>
                         <div class="col-lg-6 mb-4">
-                            <label for="" class="form-label fw-semibold">Profile Picture</label>
-                            <input type="file" name="" id="" class="form-control">
+                            <label for="profile_picture" class="form-label fw-semibold">Profile Picture</label>
+                            <input type="file" name="profile_picture" id="profile_picture" class="form-control" data-validation="required fileSize fileType" data-filesize="100" data-filetype="jpg,jpeg,png">
+                            <span id="profile_picture_error"></span>
                         </div>
                     </div>
 
