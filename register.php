@@ -146,11 +146,12 @@ ob_start();
 
                     <div class="mb-4">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="terms" name="terms">
+                            <input class="form-check-input" type="checkbox" id="terms" name="terms" data-validation="required">
                             <label class="form-check-label" for="terms">
                                 I agree to the <a href="#" class="text-decoration-none" style="color: #667eea;">Terms & Conditions</a> and <a href="#" class="text-decoration-none" style="color: #667eea;">Privacy Policy</a>
                             </label>
                         </div>
+                        <span id="terms_error"></span>
                     </div>
 
                     <button type="submit" class="btn btn-gradient w-100 btn-lg mb-3">Create Account</button>

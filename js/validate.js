@@ -10,11 +10,16 @@ $(document).ready(function () {
     var fileType = field.data("filetype") || "";
     let errorMessage = "";
     var isFileInput = field.attr("type") === "file";
+    var isCheckbox = field.attr("type") === "checkbox";
 
     if (validationType) {
-      // Required field validation
+      // Required field validation (all types)
       if (validationType.includes("required")) {
-        if (isFileInput) {
+        if (isCheckbox) {
+          if (!field.is(":checked")) {
+            errorMessage = "You must accept the terms and conditions.";
+          }
+        } else if (isFileInput) {
           if (!field[0].files || field[0].files.length === 0) {
             errorMessage = "This field is required.";
           }
@@ -127,13 +132,7 @@ $(document).ready(function () {
       });
     if (!isValid) {
       e.preventDefault();
-      // Scroll to first error
-      const firstError = $(".is-invalid").first();
-      if (firstError.length) {
-        $("html, body").animate({
-          scrollTop: firstError.offset().top - 100
-        }, 300);
-      }
+      return false;
     }
   });
 });
