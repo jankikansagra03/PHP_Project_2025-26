@@ -21,7 +21,7 @@ $(document).ready(function () {
           }
         } else if (isFileInput) {
           if (!field[0].files || field[0].files.length === 0) {
-            errorMessage = "This field is required.";
+            errorMessage = "Please select a file to upload.";
           }
         } else if (value === "" || value === "0" || value === null) {
           errorMessage = "This field is required.";
@@ -40,11 +40,9 @@ $(document).ready(function () {
           errorMessage = `This field must be at most ${maxLength} characters long.`;
         }
 
-        if(validationType.includes('alphabetic'))
-        {
+        if (validationType.includes("alphabetic")) {
           alphabet_regex = /^[a-zA-Z\s]+$/;
-          if(!alphabet_regex.test(value))
-          {
+          if (!alphabet_regex.test(value)) {
             errorMessage = "Please enter alphabetic characters only.";
           }
         }
@@ -68,7 +66,7 @@ $(document).ready(function () {
         // Strong password validation (at least 8 chars, 1 upper, 1 lower, 1 number, 1 special)
         if (validationType.includes("strongPassword")) {
           const passwordRegex =
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[@$!%*?&])[A-Za-z0-9@$!%*?&]{8,}$/;
           if (!passwordRegex.test(value)) {
             errorMessage =
               "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.";
@@ -77,14 +75,19 @@ $(document).ready(function () {
 
         // Password confirmation validation
         if (validationType.includes("confirmPassword")) {
-          const confirmPassword = $("#" + field.attr("name") + "_confirm").val();
+          const confirmPassword = $(
+            "#" + field.attr("name") + "_confirm",
+          ).val();
           if (value !== confirmPassword) {
             errorMessage = "Passwords do not match.";
           }
         }
 
         // Dropdown selection validation
-        if (validationType.includes("select") && (value === "" || value === "0" || value === null)) {
+        if (
+          validationType.includes("select") &&
+          (value === "" || value === "0" || value === null)
+        ) {
           errorMessage = "Please select an option.";
         }
       }
@@ -92,7 +95,7 @@ $(document).ready(function () {
       // File validations (only if file is selected)
       if (isFileInput && field[0].files && field[0].files.length > 0) {
         const file = field[0].files[0];
-        
+
         // File size validation
         if (validationType.includes("fileSize")) {
           if (file.size > fileSize * 1024) {

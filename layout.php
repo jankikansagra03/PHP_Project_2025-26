@@ -1,3 +1,6 @@
+<?php 
+include_once("db_config.php");
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -190,6 +193,9 @@
                         <a class="nav-link" href="shop.php">Shop</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="offers.php">Offers</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="about.php">About</a>
                     </li>
                     <li class="nav-item">
@@ -221,8 +227,9 @@
                     <p class="mb-0">&copy; <?php echo date('Y'); ?> JK Store. All rights reserved.</p>
                 </div>
                 <div class="col-md-6 text-center text-md-end">
-                    <a href="#" class="me-3">Privacy Policy</a>
-                    <a href="#" class="me-3">Terms of Service</a>
+                    <a href="privacy_policy.php" class="me-3">Privacy Policy</a>
+                    <a href="terms_of_service.php" class="me-3">Terms of Service</a>
+                    <a href="faq.php" class="me-3">FAQ</a>
                     <a href="contact.php">Contact Us</a>
                 </div>
             </div>

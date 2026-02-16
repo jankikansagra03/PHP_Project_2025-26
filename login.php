@@ -36,7 +36,7 @@ ob_start();
                                     Remember me
                                 </label>
                             </div>
-                            <a href="#" class="text-decoration-none" style="color: #667eea;">Forgot Password?</a>
+                            <a href="forgot_password.php" class="text-decoration-none" style="color: #667eea;">Forgot Password?</a>
                         </div>
 
                         <button type="submit" class="btn btn-gradient w-100 btn-lg mb-3">Login</button>

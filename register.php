@@ -20,7 +20,7 @@ ob_start();
     //                 $('#firstName').addClass("is-invalid")
     //                 var validate_fname = false;
     //             } else {
-    //                 fname_regex = /^[a-zA-Z]+$/;
+    //                 fname_regex = /^[a-zA-Z/s]+$/;
     //                 if (fname_regex.test(fname)) {
     //                     $('#fname_error').text("")
     //                     $('#firstName').addClass("is-valid")
@@ -28,7 +28,7 @@ ob_start();
     //                     validate_fname = true;
 
     //                 } else {
-    //                     $('#fname_error').text("NAme must conatin only letters")
+    //                     $('#fname_error').text("Name must conatin only letters")
     //                     $('#fname_error').addClass('text-danger')
     //                     $('#firstName').addClass("is-invalid")
     //                     validate_fname = false;
@@ -59,20 +59,18 @@ ob_start();
     //                     validate_lname = true;
 
     //                 } else {
-    //                     $('#lname_error').text("Name must conatin only letters")
-    //                     $('#lname_error').addClass('text-danger')
-    //                     $('#lastName').addClass("is-invalid")
-    //                     validate_lname = false;
+    //                 $('#lname_error').text("Name must conatin only letters")
+    //                 $('#lname_error').addClass('text-danger')
+    //                 $('#lastName').addClass("is-invalid")
+    //                 validate_lname = false;
 
-    //                 }
     //             }
     //         }
-    //         if (validate_fname == false || validate_lname == false) {
-    //             e.preventDefault();
-    //         }
-
-
-    //     });
+    //     }
+    //     if (validate_fname == false || validate_lname == false) {
+    //         e.preventDefault();
+    //     }
+    // });
     // })
 </script>
 <div class="container">
@@ -87,11 +85,11 @@ ob_start();
                         <p class="text-muted">Join us today and get started</p>
                     </div>
 
-                    <form action="" method="get" id="regform" enctype="multipart/form-data">
+                    <form action="register.php" method="post" id="regform" enctype="multipart/form-data">
                         <div class="row">
                             <div class="col-lg-6 mb-4">
                                 <label for="firstName" class="form-label fw-semibold">First Name</label>
-                                <input type="text" class="form-control  " id="firstName" name="firstName" placeholder="John" data-validation="required min alphabetic" data-min="2">
+                                <input type="text" class="form-control  " id="firstName" name="firstName" placeholder="John" data-validation="required min alphabetic max" data-min="2" data-max="20">
                                 <span id="firstName_error" class="text-danger"> </span>
                             </div>
 
@@ -149,13 +147,13 @@ ob_start();
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="terms" name="terms" data-validation="required">
                                 <label class="form-check-label" for="terms">
-                                    I agree to the <a href="#" class="text-decoration-none" style="color: #667eea;">Terms & Conditions</a> and <a href="#" class="text-decoration-none" style="color: #667eea;">Privacy Policy</a>
+                                    I agree to the <a href="terms_of_service.php" class="text-decoration-none" style="color: #667eea;">Terms & Conditions</a> and <a href="privacy_policy.php" class="text-decoration-none" style="color: #667eea;">Privacy Policy</a>
                                 </label>
                             </div>
                             <span id="terms_error"></span>
                         </div>
 
-                        <button type="submit" class="btn btn-gradient w-100 btn-lg mb-3">Create Account</button>
+                        <button type="submit" class="btn btn-gradient w-100 btn-lg mb-3" name="reg_btn">Create Account</button>
 
                         <div class="text-center">
                             <p class="text-muted mb-0">Already have an account? <a href="login.php" class="text-decoration-none fw-semibold" style="color: #667eea;">Login</a></p>
@@ -185,4 +183,25 @@ ob_start();
 <?php
 $content = ob_get_clean();
 include 'layout.php';
+if (isset($_POST['reg_btn'])) {
+    $fname = $_POST['firstName'];
+    $lname = $_POST['lastName'];
+    $email = $_POST['email'];
+    $phone = $_POST['phone'];
+    $password = $_POST['password'];
+    $gender = $_POST['gender'];
+    $profile_picture = $_FILES['profile_picture']['name'];
+    $tmp_name = $_FILES['profile_picture']['tmp_name'];
+    $upload_dir = "uploads/";
+    $fullname = $fname . " " . $lname;
+    $insert_query = "INSERT INTO `register`(`name`, `email`, `password`, `mobile`, `gender`, `profile_picture`) VALUES ('$fullname','$email','$password',$phone,'$gender','$profile_picture')";
+    echo $insert_query;
+
+    if (mysqli_query($con, $insert_query)) {
+        move_uploaded_file($tmp_name, $upload_dir . $profile_picture);
+        echo "<script>alert('Registration successful');</script>";
+    } else {
+        echo "<script>alert('Error in registration');</script>";
+    }
+}
 ?>
