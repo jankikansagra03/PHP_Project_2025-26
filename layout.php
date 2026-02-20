@@ -1,4 +1,4 @@
-<?php 
+<?php
 include_once("db_config.php");
 ?>
 <!DOCTYPE html>
@@ -114,6 +114,25 @@ include_once("db_config.php");
             border-color: transparent;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-cancel {
+            background: #ffffff;
+            border: 2px solid #e0e0e0;
+            color: #6c757d;
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-cancel:hover {
+            background: #f8f9fa;
+            color: #495057;
+            border-color: #d6d8db;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
         }
 
         /* Main Content */

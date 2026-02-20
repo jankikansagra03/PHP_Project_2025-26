@@ -1,4 +1,5 @@
 <?php
+include_once 'db_config.php';
 $title = "Register - JK Store";
 ob_start();
 ?>
@@ -183,6 +184,7 @@ ob_start();
 <?php
 $content = ob_get_clean();
 include 'layout.php';
+
 if (isset($_POST['reg_btn'])) {
     $fname = $_POST['firstName'];
     $lname = $_POST['lastName'];
@@ -193,9 +195,14 @@ if (isset($_POST['reg_btn'])) {
     $profile_picture = $_FILES['profile_picture']['name'];
     $tmp_name = $_FILES['profile_picture']['tmp_name'];
     $upload_dir = "uploads/";
+    $address = "Rajkot";
+    if (!is_dir($upload_dir)) {
+        mkdir($upload_dir);
+    }
     $fullname = $fname . " " . $lname;
-    $insert_query = "INSERT INTO `register`(`name`, `email`, `password`, `mobile`, `gender`, `profile_picture`) VALUES ('$fullname','$email','$password',$phone,'$gender','$profile_picture')";
-    echo $insert_query;
+    $token = uniqid();
+    $insert_query = "INSERT INTO `registration`(`fullname`, `email`, `password`, `gender`, `mobile`, `profile_picture`, `address`,`token`) values ('$fullname','$email','$password','$gender',$phone,'$profile_picture','$address','$token')";
+    // echo $insert_query;
 
     if (mysqli_query($con, $insert_query)) {
         move_uploaded_file($tmp_name, $upload_dir . $profile_picture);

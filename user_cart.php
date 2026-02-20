@@ -3,22 +3,22 @@ $title = "Shopping Cart - JK Store";
 ob_start();
 ?>
 <style>
-.cart-item {
-    transition: background 0.3s ease;
-}
+    .cart-item {
+        transition: background 0.3s ease;
+    }
 
-.cart-item:hover {
-    background: rgba(102, 126, 234, 0.02);
-}
+    .cart-item:hover {
+        background: rgba(102, 126, 234, 0.02);
+    }
 
-.quantity-btn {
-    width: 35px;
-    height: 35px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    .quantity-btn {
+        width: 35px;
+        height: 35px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 </style>
 
 <div class="container fade-in-up">
@@ -27,7 +27,7 @@ ob_start();
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2 class="fw-bold mb-0 text-white">Shopping Cart <span class="fs-4 text-white">(3
                         items)</span></h2>
-                <button class="btn text-white btn-sm rounded-pill" data-bs-toggle="modal"
+                <button class="btn text-white btn-danger btn-sm p-2" data-bs-toggle="modal"
                     data-bs-target="#clearCartModal">
                     <i class="fas fa-trash me-2"></i>Clear Cart
                 </button>
@@ -134,8 +134,8 @@ ob_start();
                 </div>
             </div>
             <div class="d-flex justify-content-between">
-                <a href="shop.php" class="btn btn-outline-secondary rounded-pill px-4"><i
-                        class="fas fa-arrow-left me-2"></i>Continue Shopping</a>
+                <a href="shop.php" class="btn btn-gradient w-30 py-3 fw-bold shadow-sm mb-2"><i
+                        class="fas fa-arrow-left me-2 text-white"></i>Continue Shopping</a>
             </div>
         </div>
 
@@ -193,7 +193,7 @@ ob_start();
                 <p class="text-muted mb-4">Are you sure you want to remove this item from your cart?</p>
                 <div class="d-grid gap-2">
                     <button type="button" class="btn btn-danger py-3">Yes, Remove Item</button>
-                    <button type="button" class="btn btn-outline-secondary py-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-cancel py-3" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
@@ -212,7 +212,7 @@ ob_start();
                 <p class="text-muted mb-4">This will remove all items from your cart. This action cannot be undone.</p>
                 <div class="d-grid gap-2">
                     <button type="button" class="btn btn-danger py-3">Yes, Clear Cart</button>
-                    <button type="button" class="btn btn-outline-secondary py-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-cancel py-3" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
@@ -230,10 +230,10 @@ ob_start();
             <div class="modal-body p-4">
                 <p class="text-muted mb-4">Please select a delivery address to continue</p>
                 <div class="d-grid gap-2">
-                    <a href="saved_addresses.php" class="btn btn-gradient py-3">
+                    <a href="user_addresses.php" class="btn btn-gradient py-3">
                         <i class="fas fa-map-marker-alt me-2"></i>Select Delivery Address
                     </a>
-                    <button type="button" class="btn btn-outline-secondary py-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-cancel py-3" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>

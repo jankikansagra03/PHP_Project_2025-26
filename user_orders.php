@@ -4,49 +4,49 @@ $active_sidebar = 'orders';
 ob_start();
 ?>
 <style>
-.order-row {
-    transition: background 0.3s ease;
-}
+    .order-row {
+        transition: background 0.3s ease;
+    }
 
-.order-row:hover {
-    background: rgba(102, 126, 234, 0.02);
-}
+    .order-row:hover {
+        background: rgba(102, 126, 234, 0.02);
+    }
 
-.timeline {
-    position: relative;
-    padding-left: 30px;
-}
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+    }
 
-.timeline::before {
-    content: '';
-    position: absolute;
-    left: 8px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #e0e0e0;
-}
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 8px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e0e0e0;
+    }
 
-.timeline-item {
-    position: relative;
-    padding-bottom: 1.5rem;
-}
+    .timeline-item {
+        position: relative;
+        padding-bottom: 1.5rem;
+    }
 
-.timeline-item::before {
-    content: '';
-    position: absolute;
-    left: -26px;
-    top: 0;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    background: white;
-    border: 3px solid #667eea;
-}
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -26px;
+        top: 0;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid #667eea;
+    }
 
-.timeline-item.completed::before {
-    background: #667eea;
-}
+    .timeline-item.completed::before {
+        background: #667eea;
+    }
 </style>
 
 <div class="card border-0 shadow-lg mb-4">
@@ -265,7 +265,7 @@ ob_start();
                 </div>
             </div>
             <div class="modal-footer border-0">
-                <button type="button" class="btn btn-outline-secondary rounded-pill px-4"
+                <button type="button" class="btn btn-cancel px-4"
                     data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-gradient rounded-pill px-4">
                     <i class="fas fa-download me-2"></i>Download Invoice
@@ -287,7 +287,7 @@ ob_start();
                 <p class="text-muted mb-4">Are you sure you want to cancel this order? This action cannot be undone.</p>
                 <div class="d-grid gap-2">
                     <button type="button" class="btn btn-danger py-3">Yes, Cancel Order</button>
-                    <button type="button" class="btn btn-outline-secondary py-3" data-bs-dismiss="modal">Keep
+                    <button type="button" class="btn btn-cancel py-3" data-bs-dismiss="modal">Keep
                         Order</button>
                 </div>
             </div>

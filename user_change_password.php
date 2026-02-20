@@ -4,24 +4,24 @@ $active_sidebar = 'password';
 ob_start();
 ?>
 <style>
-.form-control:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
-}
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+    }
 
-.password-strength {
-    height: 5px;
-    border-radius: 3px;
-    background: #e0e0e0;
-    margin-top: 0.5rem;
-    overflow: hidden;
-}
+    .password-strength {
+        height: 5px;
+        border-radius: 3px;
+        background: #e0e0e0;
+        margin-top: 0.5rem;
+        overflow: hidden;
+    }
 
-.password-strength-bar {
-    height: 100%;
-    transition: width 0.3s ease, background 0.3s ease;
-    width: 0%;
-}
+    .password-strength-bar {
+        height: 100%;
+        transition: width 0.3s ease, background 0.3s ease;
+        width: 0%;
+    }
 </style>
 
 <div class="card border-0 shadow-lg mb-4">
@@ -29,11 +29,7 @@ ob_start();
         <h2 class="fw-bold mb-2" style="color: #667eea;"><i class="fas fa-shield-alt me-2"></i>Security Settings</h2>
         <p class="text-muted mb-4">Manage your password and account security</p>
 
-        <div class="alert alert-info border-0 shadow-sm mb-4">
-            <i class="fas fa-info-circle me-2"></i>
-            <strong>Password Requirements:</strong> Minimum 8 characters, including uppercase, lowercase, number, and
-            special character.
-        </div>
+
 
         <form action="change_password_action.php" method="POST" id="changePasswordForm">
             <div class="mb-4">
@@ -85,8 +81,8 @@ ob_start();
                 <button type="submit" class="btn btn-gradient btn-lg shadow-sm">
                     <i class="fas fa-save me-2"></i>Update Password
                 </button>
-                <button type="button" class="btn btn-outline-secondary btn-lg"
-                    onclick="window.location.href='dashboard.php'">
+                <button type="button" class="btn btn-cancel btn-lg"
+                    onclick="window.location.href='user_dashboard.php'">
                     Cancel
                 </button>
             </div>
@@ -98,20 +94,20 @@ ob_start();
 
 
 <script>
-function togglePassword(fieldId) {
-    const field = document.getElementById(fieldId);
-    const icon = event.currentTarget.querySelector('i');
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const icon = event.currentTarget.querySelector('i');
 
-    if (field.type === 'password') {
-        field.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-    } else {
-        field.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
+        if (field.type === 'password') {
+            field.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            field.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
     }
-}
 </script>
 
 <?php

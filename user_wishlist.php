@@ -4,14 +4,14 @@ $active_sidebar = 'wishlist';
 ob_start();
 ?>
 <style>
-.product-card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
+    .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
 
-.product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -181,7 +181,7 @@ ob_start();
                 <p class="text-muted mb-4">Are you sure you want to remove this item from your wishlist?</p>
                 <div class="d-grid gap-2">
                     <button type="button" class="btn btn-danger py-3">Yes, Remove</button>
-                    <button type="button" class="btn btn-outline-secondary py-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-cancel py-3" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
@@ -201,7 +201,7 @@ ob_start();
                 </p>
                 <div class="d-grid gap-2">
                     <button type="button" class="btn btn-danger py-3">Yes, Clear All</button>
-                    <button type="button" class="btn btn-outline-secondary py-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-cancel py-3" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>

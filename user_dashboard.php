@@ -105,7 +105,7 @@ ob_start();
             <div class="card-header bg-white border-0 py-3 px-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="fw-bold mb-0">Recent Orders</h5>
-                    <a href="my_orders.php" class="btn btn-sm btn-outline-primary rounded-pill">View All</a>
+                    <a href="user_orders.php" class="btn btn-sm btn-outline-primary rounded-pill">View All</a>
                 </div>
             </div>
             <div class="card-body p-1">
