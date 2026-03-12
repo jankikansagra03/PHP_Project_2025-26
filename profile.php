@@ -8,6 +8,33 @@ $query = "SELECT * FROM registration WHERE email='$email'";
 $result = mysqli_query($con, $query);
 $user_data = mysqli_fetch_assoc($result);
 $active_sidebar = 'profile';
+
+if (isset($_POST['update_picture'])) {
+    $user_email = $user_data['email'];
+    $current_picture = $user_data['profile_picture'];
+    $upload_dir = 'images/profile_pictures/';
+
+    $new_profile_picture = uniqid() . $_FILES['profile_picture']['name'];
+    $new_temp_location = $_FILES['profile_picture']['tmp_name'];
+
+    $update = "update registration set profile_picture = '$new_profile_picture' where email='$user_email'";
+
+    if (mysqli_query($con, $update)) {
+        //delete old profile_picture
+
+        unlink("images/profile_pictures/" . $current_picture);
+        move_uploaded_file($new_temp_location, $upload_dir . $new_profile_picture);
+        setcookie('success', "Profile Picture updated successfully", time() + 5);
+    } else {
+        setcookie('error', "Error in updating profile picture", time() + 5);
+    }
+?>
+    <script>
+        window.location.href = "profile.php";
+    </script>
+<?php
+
+}
 ob_start();
 ?>
 <style>
@@ -286,12 +313,12 @@ ob_start();
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
-                <form action="update_profile_picture.php" method="POST" enctype="multipart/form-data">
+                <form action="profile.php" method="POST" enctype="multipart/form-data">
                     <div class="text-center mb-4">
                         <div class="position-relative d-inline-block">
                             <div class="overflow-hidden rounded-circle shadow-sm mx-auto"
                                 style="width: 150px; height: 150px; border: 4px solid #f8f9fa;">
-                                <img src="images/default-avatar.png" id="modalAvatarPreview" alt="Profile Picture"
+                                <img src="images/profile_pictures/<?= $user_data['profile_picture'] ?>" id="modalAvatarPreview" alt="Profile Picture"
                                     style="width: 100%; height: 100%; object-fit: cover;">
                             </div>
                         </div>
@@ -300,13 +327,14 @@ ob_start();
                     <div class="mb-4">
                         <label for="profile_picture" class="form-label fw-semibold">Choose New Picture</label>
                         <input type="file" class="form-control form-control-lg" id="profile_picture"
-                            name="profile_picture" accept="image/*" onchange="previewModalImage(this)">
-                        <p class="text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>Allowed: *.jpeg,
+                            name="profile_picture" accept="image/*" onchange="previewModalImage(this)" data-validation="required fileType fileSize" data-filetype="jpg,jpeg,png" data-filesize="3">
+                        <span id="profile_picture_error"></span>
+                        <p class=" text-muted small mt-2 mb-0"><i class="fas fa-info-circle me-1"></i>Allowed: *.jpeg,
                             *.jpg, *.png (Max 3MB)</p>
                     </div>
 
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-gradient py-3 shadow-sm rounded-pill fw-bold">
+                        <button type="submit" class="btn btn-gradient py-3 shadow-sm rounded-pill fw-bold" name="update_picture">
                             <i class="fas fa-upload me-2"></i>Upload Picture
                         </button>
                         <button type="button" class="btn btn-light py-3 rounded-pill fw-bold"

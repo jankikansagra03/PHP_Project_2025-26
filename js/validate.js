@@ -98,7 +98,7 @@ $(document).ready(function () {
 
         // File size validation
         if (validationType.includes("fileSize")) {
-          if (file.size > fileSize * 1024) {
+          if (file.size > fileSize * 1024 * 1024) {
             errorMessage = `File size must be less than ${fileSize}KB.`;
           }
         }
