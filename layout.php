@@ -19,6 +19,8 @@ include_once("db_config.php");
     <script src="js/jquery.js"></script>
     <script src="js/validate.js"></script>
     <!-- Custom CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -116,25 +118,6 @@ include_once("db_config.php");
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
-        .btn-cancel {
-            background: #ffffff;
-            border: 2px solid #e0e0e0;
-            color: #6c757d;
-            font-weight: 600;
-            padding: 0.5rem 1.5rem;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-
-        .btn-cancel:hover {
-            background: #f8f9fa;
-            color: #495057;
-            border-color: #d6d8db;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-        }
-
         /* Main Content */
         main {
             flex: 1;
@@ -220,17 +203,66 @@ include_once("db_config.php");
                     <li class="nav-item">
                         <a class="nav-link" href="contact.php">Contact</a>
                     </li>
-                    <li class="nav-item ms-3">
-                        <a class="btn btn-outline-gradient" href="login.php">Login</a>
-                    </li>
-                    <li class="nav-item ms-2">
-                        <a class="btn btn-gradient" href="register.php">Register</a>
-                    </li>
+                    <?php
+                    if (isset($_SESSION['user'])) {
+                    ?>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Dropdown
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Action</a></li>
+                                <li><a class="dropdown-item" href="#">Another action</a></li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                            </ul>
+                        </li>
+                    <?php
+                    } else {
+                    ?>
+                        <li class="nav-item ms-3">
+                            <a class="btn btn-outline-gradient" href="login.php">Login</a>
+                        </li>
+                        <li class="nav-item ms-2">
+                            <a class="btn btn-gradient" href="register.php">Register</a>
+                        </li>
+                    <?php
+                    }
+
+                    ?>
                 </ul>
             </div>
         </div>
     </nav>
+    <div class="container">
+        <?php
+        if (isset($_COOKIE['success'])) {
+        ?>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success</strong> <?= $_COOKIE['success'] ?>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        <?php
 
+        }
+
+        if (isset($_COOKIE['error'])) {
+        ?>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Error</strong> <?= $_COOKIE['error'] ?>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        <?php
+        }
+        ?>
+
+    </div>
     <!-- Main Content -->
     <main>
         <div class="container-fluid px-5">

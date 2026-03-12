@@ -1,4 +1,10 @@
 <?php
+include_once 'user_authentication.php';
+$email = $_SESSION['user'];
+include_once 'db_config.php';
+$q = "select * from registration where email='$email'";
+$result = mysqli_query($con, $q);
+$user_data = mysqli_fetch_assoc($result);
 $title = "Dashboard - JK Store";
 $active_sidebar = 'dashboard';
 ob_start();
@@ -40,7 +46,7 @@ ob_start();
     <div class="card-body p-4">
         <div class="row align-items-center">
             <div class="col-md-8">
-                <h2 class="fw-bold mb-2">Welcome Back, John! 👋</h2>
+                <h2 class="fw-bold mb-2">Welcome Back, <?php echo $user_data['fullname']; ?>! 👋</h2>
                 <p class="mb-0 opacity-90">Here's what's happening with your account today.</p>
             </div>
             <div class="col-md-4 text-end d-none d-md-block">
@@ -105,7 +111,7 @@ ob_start();
             <div class="card-header bg-white border-0 py-3 px-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="fw-bold mb-0">Recent Orders</h5>
-                    <a href="user_orders.php" class="btn btn-sm btn-outline-primary rounded-pill">View All</a>
+                    <a href="my_orders.php" class="btn btn-sm btn-outline-primary rounded-pill">View All</a>
                 </div>
             </div>
             <div class="card-body p-1">

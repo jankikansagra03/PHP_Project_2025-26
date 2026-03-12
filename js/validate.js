@@ -2,8 +2,7 @@ $(document).ready(function () {
   function validateInput(input) {
     var field = $(input);
     var value = field.val() ? field.val().trim() : "";
-    var errorSelector = field.data("error-selector") || "#" + field.attr("name") + "_error";
-    var errorfield = $(errorSelector);
+    var errorfield = $("#" + field.attr("name") + "_error");
     var validationType = field.data("validation");
     var minLength = field.data("min") || 0;
     var maxLength = field.data("max") || 9999;

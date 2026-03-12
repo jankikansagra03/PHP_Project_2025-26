@@ -1,6 +1,9 @@
 <?php
+include_once 'db_config.php';
 $title = "Shop - JK Store";
 ob_start();
+$q = "select * from products";
+$data = mysqli_query($con, $q);
 ?>
 
 <div class="row mb-5 fade-in-up">
@@ -14,21 +17,12 @@ ob_start();
 
 <div class="row g-4 mb-5">
     <?php
-    $products = [
-        ['name' => 'Premium Product 1', 'price' => '$99.99', 'desc' => 'High-quality product with amazing features'],
-        ['name' => 'Premium Product 2', 'price' => '$149.99', 'desc' => 'Professional-grade solution for your needs'],
-        ['name' => 'Premium Product 3', 'price' => '$79.99', 'desc' => 'Affordable excellence at your fingertips'],
-        ['name' => 'Premium Product 4', 'price' => '$199.99', 'desc' => 'Top-tier performance and reliability'],
-        ['name' => 'Premium Product 5', 'price' => '$129.99', 'desc' => 'Innovation meets practicality'],
-        ['name' => 'Premium Product 6', 'price' => '$89.99', 'desc' => 'Perfect blend of quality and value'],
-        ['name' => 'Premium Product 7', 'price' => '$129.99', 'desc' => 'Innovation meets practicality'],
-        ['name' => 'Premium Product 8', 'price' => '$89.99', 'desc' => 'Perfect blend of quality and value'],
-    ];
 
-    foreach ($products as $index => $product):
-        $delay = ($index % 3) * 0.1;
+
+    while ($products = mysqli_fetch_assoc($data)) {
+
     ?>
-        <div class="col-md-6 col-lg-3 fade-in-up" style="animation-delay: <?php echo $delay; ?>s;">
+        <div class="col-md-6 col-lg-3 fade-in-up">
             <div class="card h-100 border-0">
                 <div class="card-body p-4">
                     <div class="mb-3 text-center">
@@ -36,16 +30,16 @@ ob_start();
                             <i class="fas fa-box fa-4x text-white"></i>
                         </div>
                     </div>
-                    <h4 class="fw-bold mb-2"><?php echo $product['name']; ?></h4>
-                    <p class="text-muted mb-3"><?php echo $product['desc']; ?></p>
+                    <h4 class="fw-bold mb-2"><?php echo $products['name']; ?></h4>
+                    <p class="text-muted mb-3"><?php echo $products['description']; ?></p>
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="h4 mb-0 fw-bold" style="color: #667eea;"><?php echo $product['price']; ?></span>
+                        <span class="h4 mb-0 fw-bold" style="color: #667eea;"><?php echo $products['price']; ?></span>
                         <button class="btn btn-gradient">Add to Cart</button>
                     </div>
                 </div>
             </div>
         </div>
-    <?php endforeach; ?>
+    <?php } ?>
 </div>
 
 

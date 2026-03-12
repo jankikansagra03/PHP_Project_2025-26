@@ -1,4 +1,5 @@
 <?php
+include_once 'user_authentication.php';
 $title = "My Wishlist - JK Store";
 $active_sidebar = 'wishlist';
 ob_start();
@@ -181,7 +182,7 @@ ob_start();
                 <p class="text-muted mb-4">Are you sure you want to remove this item from your wishlist?</p>
                 <div class="d-grid gap-2">
                     <button type="button" class="btn btn-danger py-3">Yes, Remove</button>
-                    <button type="button" class="btn btn-cancel py-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-outline-secondary py-3" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
@@ -201,7 +202,7 @@ ob_start();
                 </p>
                 <div class="d-grid gap-2">
                     <button type="button" class="btn btn-danger py-3">Yes, Clear All</button>
-                    <button type="button" class="btn btn-cancel py-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-outline-secondary py-3" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>

@@ -1,5 +1,47 @@
 <?php
+session_start();
 $title = "Login - JK Store";
+include_once 'db_config.php';
+if (isset($_POST['login_btn'])) {
+    $em = $_POST['email'];
+    $pwd = $_POST['password'];
+    $q = "select * from registration where email='$em' and password='$pwd'";
+    $result = mysqli_query($con, $q);
+    $count = mysqli_num_rows($result);
+    if ($count == 1) {
+        $user_data = mysqli_fetch_assoc($result);
+        if ($user_data['status'] == 'Active' || $user_data['status'] == 'active') {
+            if ($user_data['role'] == 'Admin' || $user_data['role'] == 'admin') {
+                $_SESSION['admin'] = $user_data['email'];
+                setcookie('success', "Login Successfull", time() + 5);  ?>
+                <script>
+                    window.location.href = "admin_dashboard.php";
+                </script>
+            <?php
+            } else {
+                $_SESSION['user'] = $user_data['email'];
+                setcookie('success', "Login Successfull", time() + 5);  ?>
+                <script>
+                    window.location.href = "dashboard.php";
+                </script>
+            <?php
+            }
+        } else {
+            setcookie("error", "Email address is not verified. kindly verify your email address", time() + 5);  ?>
+            <script>
+                window.location.href = "login.php";
+            </script>
+        <?php
+        }
+    } else {
+        setcookie("error", "Incorrect username or password", time() + 5);
+        ?>
+        <script>
+            window.location.href = "login.php";
+        </script>
+<?php
+    }
+}
 ob_start();
 ?>
 <div class="container">
@@ -16,10 +58,10 @@ ob_start();
                         <p class="text-muted">Login to your account</p>
                     </div>
 
-                    <form action="test.php" method="POST">
+                    <form action="login.php" method="POST">
                         <div class="mb-4">
                             <label for="email" class="form-label fw-semibold">Email Address</label>
-                            <input type="text" class="form-control  " id="email" name="email" placeholder="Enter your email" data-validation="required email">
+                            <input type="text" class="form-control" id="email" name="email" placeholder="Enter your email" data-validation="required email">
                             <span id="email_error"></span>
                         </div>
 
@@ -39,7 +81,7 @@ ob_start();
                             <a href="forgot_password.php" class="text-decoration-none" style="color: #667eea;">Forgot Password?</a>
                         </div>
 
-                        <button type="submit" class="btn btn-gradient w-100 btn-lg mb-3">Login</button>
+                        <button type="submit" class="btn btn-gradient w-100 btn-lg mb-3" name="login_btn">Login</button>
 
                         <div class="text-center">
                             <p class="text-muted mb-0">Don't have an account? <a href="register.php" class="text-decoration-none fw-semibold" style="color: #667eea;">Sign Up</a></p>

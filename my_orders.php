@@ -1,4 +1,5 @@
 <?php
+include_once 'user_authentication.php';
 $title = "My Orders - JK Store";
 $active_sidebar = 'orders';
 ob_start();
@@ -265,7 +266,7 @@ ob_start();
                 </div>
             </div>
             <div class="modal-footer border-0">
-                <button type="button" class="btn btn-cancel px-4"
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4"
                     data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-gradient rounded-pill px-4">
                     <i class="fas fa-download me-2"></i>Download Invoice
@@ -287,7 +288,7 @@ ob_start();
                 <p class="text-muted mb-4">Are you sure you want to cancel this order? This action cannot be undone.</p>
                 <div class="d-grid gap-2">
                     <button type="button" class="btn btn-danger py-3">Yes, Cancel Order</button>
-                    <button type="button" class="btn btn-cancel py-3" data-bs-dismiss="modal">Keep
+                    <button type="button" class="btn btn-outline-secondary py-3" data-bs-dismiss="modal">Keep
                         Order</button>
                 </div>
             </div>
