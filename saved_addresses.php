@@ -2,6 +2,11 @@
 include_once 'user_authentication.php';
 $title = "Saved Addresses - JK Store";
 $active_sidebar = 'addresses';
+$email = $_SESSION['user'];
+include_once 'db_config.php';
+$q = "Select *  from addresses where email='$email'";
+$result = mysqli_query($con, $q);
+$count = mysqli_num_rows($result);
 ob_start();
 ?>
 <style>
@@ -23,59 +28,52 @@ ob_start();
                 <i class="fas fa-plus me-2"></i>Add New Address
             </button>
         </div>
+        <?php
+        if ($count == 0) {
+        ?>
+            <div class="alert alert-info" role="alert">
+                You have no saved addresses yet.
+            </div>
+        <?php
+        } else {
+        ?>
+            <div class="row g-4">
+                <!-- Address 1 -->
+                <?php
+                while ($row = mysqli_fetch_assoc($result)) {
+                ?>
+                    <div class="col-md-6">
+                        <div class="card h-100 border shadow-sm address-card">
+                            <div class="card-body p-4 position-relative">
+                                <span class="badge bg-primary position-absolute top-0 end-0 m-3">Default</span>
+                                <div class="mb-3">
+                                    <h5 class="fw-bold mb-1"><i class="fas fa-home me-2 text-primary"></i>Home</h5>
+                                </div>
+                                <p class="mb-1 fw-semibold"><?= $row['name'] ?></p>
+                                <p class="text-muted mb-1 small"><?= $row['address'] ?></p>
+                                <p class="text-muted mb-1 small"><?= $row['city'] ?>, <?= $row['state'] ?> <?= $row['zip'] ?>, USA</p>
+                                <p class="text-muted mb-3 small"><i class="fas fa-phone me-2"></i><?= $row['phone'] ?></p>
 
-        <div class="row g-4">
-            <!-- Address 1 -->
-            <div class="col-md-6">
-                <div class="card h-100 border shadow-sm address-card">
-                    <div class="card-body p-4 position-relative">
-                        <span class="badge bg-primary position-absolute top-0 end-0 m-3">Default</span>
-                        <div class="mb-3">
-                            <h5 class="fw-bold mb-1"><i class="fas fa-home me-2 text-primary"></i>Home</h5>
-                        </div>
-                        <p class="mb-1 fw-semibold">John Doe</p>
-                        <p class="text-muted mb-1 small">123 Street Name, Apt 4B</p>
-                        <p class="text-muted mb-1 small">New York, NY 10001, USA</p>
-                        <p class="text-muted mb-3 small"><i class="fas fa-phone me-2"></i>+1 234 567 890</p>
-
-                        <div class="d-flex gap-2 mt-3">
-                            <button class="btn btn-sm btn-outline-primary px-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#editAddressModal">
-                                <i class="fas fa-edit me-1"></i>Edit
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger px-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#deleteAddressModal">
-                                <i class="fas fa-trash me-1"></i>Delete
-                            </button>
+                                <div class="d-flex gap-2 mt-3">
+                                    <button class="btn btn-sm btn-outline-primary px-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#editAddressModal">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger px-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#deleteAddressModal">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
+
+                    <!-- Address 2 -->
+            <?php
+                }
+            }
+
+
+            ?>
             </div>
-
-            <!-- Address 2 -->
-            <div class="col-md-6">
-                <div class="card h-100 border shadow-sm address-card">
-                    <div class="card-body p-4">
-                        <div class="mb-3">
-                            <h5 class="fw-bold mb-1"><i class="fas fa-building me-2 text-success"></i>Office</h5>
-                        </div>
-                        <p class="mb-1 fw-semibold">John Doe</p>
-                        <p class="text-muted mb-1 small">456 Business Blvd, Suite 200</p>
-                        <p class="text-muted mb-1 small">San Francisco, CA 94107, USA</p>
-                        <p class="text-muted mb-3 small"><i class="fas fa-phone me-2"></i>+1 987 654 321</p>
-
-                        <div class="d-flex gap-2 mt-3">
-                            <button class="btn btn-sm btn-outline-primary px-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#editAddressModal">
-                                <i class="fas fa-edit me-1"></i>Edit
-                            </button>
-                            <button class="btn btn-sm btn-outline-danger px-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#deleteAddressModal">
-                                <i class="fas fa-trash me-1"></i>Delete
-                            </button>
-                            <button class="btn btn-sm btn-link text-secondary text-decoration-none">Set as Default</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
 
     </div>
 </div>

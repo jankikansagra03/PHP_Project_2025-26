@@ -1,5 +1,7 @@
 <?php
 include_once 'user_authentication.php';
+$email = $_SESSION['user'];
+include_once 'db_config.php';
 $title = "My Orders - JK Store";
 $active_sidebar = 'orders';
 ob_start();
@@ -63,99 +65,68 @@ ob_start();
         </div>
 
         <div class="list-group list-group-flush">
-            <!-- Order 1 -->
-            <div class="list-group-item border-0 p-4 order-row">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <h5 class="fw-bold mb-1">Order #ORD-7829</h5>
-                        <p class="text-muted small mb-0">Placed on Oct 24, 2023</p>
-                    </div>
-                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">Delivered</span>
+            <?php
+            $q = "select * from orders where `user_email`='" . $email . "' order by id desc";
+            $result = mysqli_query($con, $q);
+            $count = mysqli_num_rows($result);
+            if ($count == 0) {
+            ?>
+                <div class="alert alert-info" role="alert">
+                    You have no orders yet.
                 </div>
-                <div class="d-flex align-items-center mb-3">
-                    <img src="images/product-1.jpg" alt="" class="rounded me-3"
-                        style="width: 60px; height: 60px; object-fit: cover; background: #f8f9fa;">
-                    <div class="flex-grow-1">
-                        <h6 class="fw-semibold mb-1">Wireless Headphones</h6>
-                        <p class="text-muted small mb-0">Qty: 1</p>
-                    </div>
-                    <h5 class="fw-bold mb-0">$120.00</h5>
-                </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal"
-                        data-bs-target="#orderDetailsModal">
-                        <i class="fas fa-eye me-1"></i>View Details
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">
-                        <i class="fas fa-redo me-1"></i>Reorder
-                    </button>
-                    <button class="btn btn-sm btn-outline-success rounded-pill px-3">
-                        <i class="fas fa-download me-1"></i>Invoice
-                    </button>
-                </div>
-            </div>
+                <?php
+            } else {
+                while ($row = mysqli_fetch_array($result)) {
+                    $order_id = $row['id'];
+                    $q2 = "select * from order_items where order_id=$order_id";
+                    $result2 = mysqli_query($con, $q2);
+                    $row2 = mysqli_fetch_array($result2);
+                    while ($row2 = mysqli_fetch_array($result2)) {
+                        $pid = $row2['product_id'];
+                        $pq = $row2['quantity'];
+                        $q3 = "select * from products where id=$pid";
+                        $result3 = mysqli_query($con, $q3);
+                        $row3 = mysqli_fetch_array($result3);
 
-            <!-- Order 2 -->
-            <div class="list-group-item border-0 p-4 order-row">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <h5 class="fw-bold mb-1">Order #ORD-7828</h5>
-                        <p class="text-muted small mb-0">Placed on Oct 22, 2023</p>
-                    </div>
-                    <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill">Processing</span>
-                </div>
-                <div class="d-flex align-items-center mb-3">
-                    <img src="images/product-2.jpg" alt="" class="rounded me-3"
-                        style="width: 60px; height: 60px; object-fit: cover; background: #f8f9fa;">
-                    <div class="flex-grow-1">
-                        <h6 class="fw-semibold mb-1">Smart Fitness Watch</h6>
-                        <p class="text-muted small mb-0">Qty: 1</p>
-                    </div>
-                    <h5 class="fw-bold mb-0">$180.00</h5>
-                </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal"
-                        data-bs-target="#orderDetailsModal">
-                        <i class="fas fa-eye me-1"></i>View Details
-                    </button>
-                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3" data-bs-toggle="modal"
-                        data-bs-target="#cancelOrderModal">
-                        <i class="fas fa-times me-1"></i>Cancel
-                    </button>
-                </div>
-            </div>
-
-            <!-- Order 3 -->
-            <div class="list-group-item border-0 p-4 order-row">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <h5 class="fw-bold mb-1">Order #ORD-7827</h5>
-                        <p class="text-muted small mb-0">Placed on Oct 20, 2023</p>
-                    </div>
-                    <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2 rounded-pill">Cancelled</span>
-                </div>
-                <div class="d-flex align-items-center mb-3">
-                    <img src="images/product-3.jpg" alt="" class="rounded me-3"
-                        style="width: 60px; height: 60px; object-fit: cover; background: #f8f9fa;">
-                    <div class="flex-grow-1">
-                        <h6 class="fw-semibold mb-1">Premium Backpack</h6>
-                        <p class="text-muted small mb-0">Qty: 1</p>
-                    </div>
-                    <h5 class="fw-bold mb-0">$90.00</h5>
-                </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal"
-                        data-bs-target="#orderDetailsModal">
-                        <i class="fas fa-eye me-1"></i>View Details
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">
-                        <i class="fas fa-redo me-1"></i>Reorder
-                    </button>
-                </div>
-            </div>
+                ?>
+                        <div class="list-group-item border-0 p-4 order-row">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div>
+                                    <h5 class="fw-bold mb-1">Order #<?= $row['id'] ?></h5>
+                                    <p class="text-muted small mb-0">Placed on <?= date('M j, Y', strtotime($row['order_date'])) ?></p>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill"><?= $row['order_status'] ?></span>
+                                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill"><?= $row['payment_status'] ?></span>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="<?= $row3['image'] ?>" alt="" class="rounded me-3"
+                                    style="width: 60px; height: 60px; object-fit: cover; background: #f8f9fa;">
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-semibold mb-1"><?= $row3['name'] ?></h6>
+                                    <p class="text-muted small mb-0">Qty: <?= $row2['quantity'] ?></p>
+                                </div>
+                                <h5 class="fw-bold mb-0">$<?= number_format($row2['subtotal'], 2) ?></h5>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-sm btn-outline-primary rounded-pill px-3" data-bs-toggle="modal"
+                                    data-bs-target="#orderDetailsModal">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                    <i class="fas fa-redo me-1"></i>Reorder
+                                </button>
+                                <button class="btn btn-sm btn-outline-success rounded-pill px-3">
+                                    <i class="fas fa-download me-1"></i>Invoice
+                                </button>
+                            </div>
+                        </div>
+                <?php
+                    }
+                }
+                ?>
         </div>
-
-        <!-- Pagination -->
         <nav class="mt-4">
             <ul class="pagination justify-content-end mb-0">
                 <li class="page-item disabled">
@@ -170,6 +141,12 @@ ob_start();
                 </li>
             </ul>
         </nav>
+    <?php
+            }
+    ?>
+
+    <!-- Pagination -->
+
 
     </div>
 </div>

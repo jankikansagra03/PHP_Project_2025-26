@@ -5,6 +5,24 @@ include_once 'db_config.php';
 $q = "select * from registration where email='$email'";
 $result = mysqli_query($con, $q);
 $user_data = mysqli_fetch_assoc($result);
+
+$sidebar_name = 'User';
+$sidebar_email = $email;
+$sidebar_picture = 'default.png';
+
+if (isset($user_data['fullname']) && trim($user_data['fullname']) !== '') {
+    $sidebar_name = $user_data['fullname'];
+} elseif (isset($user_data['name']) && trim($user_data['name']) !== '') {
+    $sidebar_name = $user_data['name'];
+}
+
+if (isset($user_data['email']) && trim($user_data['email']) !== '') {
+    $sidebar_email = $user_data['email'];
+}
+
+if (isset($user_data['profile_picture']) && trim($user_data['profile_picture']) !== '') {
+    $sidebar_picture = $user_data['profile_picture'];
+}
 // Default active sidebar item if not set
 if (!isset($active_sidebar)) {
     $active_sidebar = '';
@@ -12,6 +30,10 @@ if (!isset($active_sidebar)) {
 ob_start();
 ?>
 <style>
+    .dashboard-shell {
+        margin-top: 0.5rem;
+    }
+
     .sidebar-link {
         border-radius: 10px;
         margin-bottom: 5px;
@@ -39,9 +61,26 @@ ob_start();
     .sidebar-link i {
         width: 25px;
     }
+
+    .sidebar-user-avatar {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border: 3px solid #fff;
+    }
+
+    @media (max-width: 991.98px) {
+        .dashboard-shell {
+            margin-top: 0;
+        }
+
+        .sidebar-link {
+            padding: 10px 14px;
+        }
+    }
 </style>
 
-<div class="container fade-in-up">
+<div class="container fade-in-up dashboard-shell">
     <div class="row g-4">
         <!-- Sidebar -->
         <div class="col-lg-3">
@@ -49,11 +88,11 @@ ob_start();
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
                         <div class="position-relative d-inline-block mb-3">
-                            <img src="images/profile_pictures/<?= $user_data['profile_picture'] ?>" alt="Profile" class="rounded-circle shadow-sm" style="width: 100px; height: 100px; object-fit: cover; border: 3px solid #fff;">
+                            <img src="images/profile_pictures/<?= htmlspecialchars($sidebar_picture, ENT_QUOTES, 'UTF-8') ?>" alt="Profile" class="rounded-circle shadow-sm sidebar-user-avatar">
                             <span class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle p-2"></span>
                         </div>
-                        <h5 class="fw-bold mb-1"><?php echo $user_data['fullname']; ?></h5>
-                        <p class="text-muted small mb-0"><?php echo $user_data['email']; ?></p>
+                        <h5 class="fw-bold mb-1"><?= htmlspecialchars($sidebar_name, ENT_QUOTES, 'UTF-8') ?></h5>
+                        <p class="text-muted small mb-0"><?= htmlspecialchars($sidebar_email, ENT_QUOTES, 'UTF-8') ?></p>
                     </div>
 
                     <nav class="nav flex-column">

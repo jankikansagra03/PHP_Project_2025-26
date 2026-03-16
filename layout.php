@@ -1,5 +1,16 @@
 <?php
 include_once("db_config.php");
+@session_start();
+
+$nav_user_data = null;
+if (isset($_SESSION['user'])) {
+    $session_email = mysqli_real_escape_string($con, $_SESSION['user']);
+    $nav_user_query = "SELECT * FROM registration WHERE email='$session_email' LIMIT 1";
+    $nav_user_result = mysqli_query($con, $nav_user_query);
+    if ($nav_user_result && mysqli_num_rows($nav_user_result) === 1) {
+        $nav_user_data = mysqli_fetch_assoc($nav_user_result);
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -67,7 +78,7 @@ include_once("db_config.php");
             transform: translateY(-2px);
         }
 
-        .nav-link::after {
+        .nav-item:not(.dropdown) .nav-link::after {
             content: '';
             position: absolute;
             width: 0;
@@ -79,8 +90,37 @@ include_once("db_config.php");
             transform: translateX(-50%);
         }
 
-        .nav-link:hover::after {
+        .nav-item:not(.dropdown) .nav-link:hover::after {
             width: 80%;
+        }
+
+        .nav-link.dropdown-toggle {
+            white-space: nowrap;
+        }
+
+        .nav-link.dropdown-toggle::after {
+            margin-left: 0.45rem;
+            vertical-align: 0.15em;
+        }
+
+        .nav-user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(102, 126, 234, 0.35);
+        }
+
+        .dropdown-user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .user-dropdown {
+            min-width: 280px;
         }
 
         .btn-gradient {
@@ -180,6 +220,8 @@ include_once("db_config.php");
 
 <body>
     <!-- Navigation -->
+
+
     <nav class="navbar navbar-expand-lg navbar-light sticky-top">
         <div class="container">
             <a class="navbar-brand" href="index.php">JK Store</a>
@@ -205,18 +247,54 @@ include_once("db_config.php");
                     </li>
                     <?php
                     if (isset($_SESSION['user'])) {
+                        $display_name = 'User';
+                        $display_email = $_SESSION['user'];
+                        $display_role = 'User';
+                        $display_picture = 'default.png';
+
+                        if ($nav_user_data) {
+                            if (isset($nav_user_data['fullname']) && trim($nav_user_data['fullname']) !== '') {
+                                $display_name = $nav_user_data['fullname'];
+                            } elseif (isset($nav_user_data['name']) && trim($nav_user_data['name']) !== '') {
+                                $display_name = $nav_user_data['name'];
+                            }
+
+                            if (isset($nav_user_data['email']) && trim($nav_user_data['email']) !== '') {
+                                $display_email = $nav_user_data['email'];
+                            }
+
+                            if (isset($nav_user_data['role']) && trim($nav_user_data['role']) !== '') {
+                                $display_role = $nav_user_data['role'];
+                            }
+
+                            if (isset($nav_user_data['profile_picture']) && trim($nav_user_data['profile_picture']) !== '') {
+                                $display_picture = $nav_user_data['profile_picture'];
+                            }
+                        }
                     ?>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                Dropdown
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="images/profile_pictures/<?= htmlspecialchars($display_picture, ENT_QUOTES, 'UTF-8') ?>" alt="Profile" class="nav-user-avatar">
+                                <span class="d-none d-md-inline"><?= htmlspecialchars($display_name, ENT_QUOTES, 'UTF-8') ?></span>
                             </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#">Action</a></li>
-                                <li><a class="dropdown-item" href="#">Another action</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end user-dropdown">
+                                <li class="px-3 py-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="images/profile_pictures/<?= $display_picture ?>" alt="Profile" class="dropdown-user-avatar">
+                                        <div>
+                                            <h6 class="mb-0"><?= $display_name ?></h6>
+                                            <small class="text-muted d-block"><?= $display_email ?></small>
+                                            <small class="badge text-bg-light border mt-1"><?= $display_role ?></small>
+                                        </div>
+                                    </div>
+                                </li>
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
-                                <li><a class="dropdown-item" href="#">Something else here</a></li>
+                                <li><a class="dropdown-item" href="dashboard.php"><i class="fas fa-gauge-high me-2"></i>Dashboard</a></li>
+                                <li><a class="dropdown-item" href="edit_profile.php"><i class="fas fa-user-pen me-2"></i>Edit Profile</a></li>
+                                <li><a class="dropdown-item" href="change_password.php"><i class="fas fa-key me-2"></i>Change Password</a></li>
+                                <li><a class="dropdown-item text-danger" href="logout.php"><i class="fas fa-right-from-bracket me-2"></i>Logout</a></li>
                             </ul>
                         </li>
                     <?php
@@ -236,15 +314,14 @@ include_once("db_config.php");
             </div>
         </div>
     </nav>
+    <br>
     <div class="container">
         <?php
         if (isset($_COOKIE['success'])) {
         ?>
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <strong>Success</strong> <?= $_COOKIE['success'] ?>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php
 
@@ -254,10 +331,10 @@ include_once("db_config.php");
         ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <strong>Error</strong> <?= $_COOKIE['error'] ?>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
+
+
         <?php
         }
         ?>

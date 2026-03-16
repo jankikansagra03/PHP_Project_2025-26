@@ -210,7 +210,7 @@ ob_start();
 
             <div class="row g-4">
                 <!-- First Name -->
-                <div class="col-md-6 col-lg-4">
+                <div class="col-md-6 col-lg-6">
                     <div class="info-card p-4 h-100">
                         <div class="d-flex align-items-center mb-0">
                             <div class="info-icon me-3">
@@ -225,7 +225,7 @@ ob_start();
                 </div>
 
                 <!-- Last Name -->
-                <div class="col-md-6 col-lg-4">
+                <div class="col-md-6 col-lg-6">
                     <div class="info-card p-4 h-100">
                         <div class="d-flex align-items-center mb-0">
                             <div class="info-icon me-3">
@@ -240,7 +240,7 @@ ob_start();
                 </div>
 
                 <!-- Email Address -->
-                <div class="col-md-6 col-lg-4">
+                <div class="col-md-6 col-lg-6">
                     <div class="info-card p-4 h-100">
                         <div class="d-flex align-items-center mb-0">
                             <div class="info-icon me-3">
@@ -255,7 +255,7 @@ ob_start();
                 </div>
 
                 <!-- Phone Number -->
-                <div class="col-md-6 col-lg-4">
+                <div class="col-md-6 col-lg-6">
                     <div class="info-card p-4 h-100">
                         <div class="d-flex align-items-center mb-0">
                             <div class="info-icon me-3">
@@ -270,35 +270,7 @@ ob_start();
                 </div>
 
                 <!-- Gender -->
-                <div class="col-md-6 col-lg-4">
-                    <div class="info-card p-4 h-100">
-                        <div class="d-flex align-items-center mb-0">
-                            <div class="info-icon me-3">
-                                <i class="fas fa-venus-mars"></i>
-                            </div>
-                            <div>
-                                <p class="detail-label">Address</p>
-                                <p class="detail-value text-break" style="word-wrap: break-word;"><?= $user_data['address'] ?></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Address (Keeping existing functionality) -->
-                <div class="col-md-6 col-lg-4">
-                    <div class="info-card p-4 h-100">
-                        <div class="d-flex align-items-center mb-0">
-                            <div class="info-icon me-3">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                            <div>
-                                <p class="detail-label">Address</p>
-                                <p class="detail-value text-break" style="word-wrap: break-word;">123 Street Name, City,
-                                    New York, USA</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
