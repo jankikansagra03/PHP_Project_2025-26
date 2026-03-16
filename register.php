@@ -1,5 +1,7 @@
 <?php
 $title = "Register - JK Store";
+include_once 'db_config.php';
+include_once 'mailer.php';
 ob_start();
 ?>
 <!-- <script src="js/jquery.js"></script> -->
@@ -198,14 +200,38 @@ if (isset($_POST['reg_btn'])) {
     }
     $fullname = $fname . " " . $lname;
     $token = bin2hex(random_bytes(15));
-    $insert_query = "INSERT INTO `register`(`name`, `email`, `password`, `mobile`, `gender`, `profile_picture`,`token`) VALUES ('$fullname','$email','$password',$phone,'$gender','$profile_picture','$token')";
+    $insert_query = "INSERT INTO `registration`(`fullname`, `email`, `password`, `mobile`, `gender`, `profile_picture`,`token`) VALUES ('$fullname','$email','$password',$phone,'$gender','$profile_picture','$token')";
     echo $insert_query;
 
     if (mysqli_query($con, $insert_query)) {
         move_uploaded_file($tmp_name, $upload_dir . $profile_picture);
-        echo "<script>alert('Registration successful');</script>";
-    } else {
-        echo "<script>alert('Error in registration');</script>";
+        $to = $email;
+        $subject = "Email Verification - JK Store";
+        $body = "
+        <h2>Welcome to JK Store, $fullname!</h2>
+        <p>Thank you for registering an account with us. Please click the link below to verify your email address and activate your account:</p>
+
+        <a href='http://localhost/2025_practice/PHP_Project_2025-26/verify_email.php?token=' . $token . '&em='.$email.'>
+        Click here to verify email
+        </a>'
+        ";
+        if (sendEmail($to, $subject, $body, "")) {
+
+            setcookie("success", "Registration successful! Please check your email to verify your account.", time() + 5, "/");
+        } else {
+            setcookie("error", "error in sending mail", time() + 5);
+        }
+?> <script>
+            window.location.href = "login.php";
+            <?php
+        } else {
+            setcookie("error", "Registration failed! Please try again.", time() + 5, "/");
+            ?>
+                    <
+                    script >
+                    window.location.href = "register.php"; <
+                />
+            <?php
+        }
     }
-}
-?>
+            ?>
