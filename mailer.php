@@ -34,7 +34,7 @@ function sendEmail($to, $subject, $body, $file = null)
         $mail->Host       = 'smtp.gmail.com';
         $mail->Port       = 465;
         $mail->Username   = 'kansagrajanki@gmail.com';
-        $mail->Password   = 'xvjf ojlt whgy dxib';   // <-- Add your Gmail App Password here
+        $mail->Password   = '';   // <-- Add your Gmail App Password here
 
         // Disable SSL peer verification (for local/dev environments)
         $mail->SMTPOptions = [
