@@ -1,16 +1,19 @@
 <?php
+// Final step of forgot-password flow: set new password after OTP verification.
 @session_start();
 include_once 'db_config.php';
 
 $title = "Reset Password - JK Store";
 
 if (!isset($_SESSION['forgot_email'])) {
+    // Missing session email means flow context is gone.
     setcookie('error', 'Session expired. Please start the reset process again.', time() + 5, '/');
     echo "<script>window.location.href = 'forgot_password.php';</script>";
     exit();
 }
 
 if (empty($_SESSION['forgot_otp_verified'])) {
+    // Prevent password reset unless OTP has been verified.
     setcookie('error', 'Please verify your OTP before resetting the password.', time() + 5, '/');
     echo "<script>window.location.href = 'verify_otp.php';</script>";
     exit();
@@ -18,29 +21,18 @@ if (empty($_SESSION['forgot_otp_verified'])) {
 
 if (isset($_POST['reset_pwd_btn'])) {
     if (isset($_SESSION['forgot_email'])) {
-        $email = $_SESSION['forgot_email'];
-        $new_password = $_POST['new_password'] ?? ($_POST['npwd'] ?? '');
+        // Sanitize session/form values before composing SQL.
+        $email = mysqli_real_escape_string($con, $_SESSION['forgot_email']);
+        $new_password = mysqli_real_escape_string($con, $_POST['new_password'] ?? ($_POST['npwd'] ?? ''));
 
-        $stmt = $con->prepare("UPDATE registration SET password = ? WHERE email = ?");
-        if ($stmt == false) {
-            die('Prepare failed: ' . $con->error);
-        }
+        // Update user password for the verified account.
+        $update_sql = "UPDATE registration SET password = '$new_password' WHERE email = '$email'";
+        if (mysqli_query($con, $update_sql)) {
+            // Clear OTP token so it cannot be reused.
+            $delete_sql = "DELETE FROM password_token WHERE email = '$email'";
+            mysqli_query($con, $delete_sql);
 
-        $stmt->bind_param("ss", $new_password, $email);
-
-        if ($stmt->execute()) {
-            $stmt->close();
-
-            $stmt_del = $con->prepare("DELETE FROM password_token WHERE email = ?");
-            if ($stmt_del == false) {
-                die('Prepare failed (Delete): ' . $con->error);
-            }
-
-            $stmt_del->bind_param("s", $email);
-            $stmt_del->execute();
-            $stmt_del->close();
-            // flush_stored_results($con);
-
+            // Reset forgot-password session flags and return to login.
             setcookie('success', 'Password has been reset successfully. You can now log in.', time() + 5, '/');
             unset($_SESSION['forgot_email']);
             unset($_SESSION['forgot_otp_verified']);
@@ -52,13 +44,15 @@ if (isset($_POST['reset_pwd_btn'])) {
 <?php
             exit();
         } else {
+            // Password update failed.
             setcookie('error', 'Failed to update password. Please try again.', time() + 5, '/');
         }
-        $stmt->close();
     } else {
+        // Defensive fallback when session email vanishes mid-request.
         setcookie('error', 'Session expired. Please start the reset process again.', time() + 5, '/');
     }
 
+    // Return to reset page after failure paths.
     echo "<script>window.location.href = 'reset_password.php';</script>";
     exit();
 }

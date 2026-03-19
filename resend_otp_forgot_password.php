@@ -1,24 +1,26 @@
 <?php
+// Resend OTP handler for forgot-password flow.
 @session_start();
 include_once 'db_config.php';
 include 'mailer.php';
 include 'mail_content.php';
 
+// This endpoint requires remembered email from prior forgot-password step.
 if (isset($_SESSION['forgot_email'])) {
     $email = $_SESSION['forgot_email'];
+    $safe_email = mysqli_real_escape_string($con, $email);
 
-    $stmt_user = $con->prepare("SELECT fullname FROM registration WHERE email = ? LIMIT 1");
-    if ($stmt_user === false) {
-        die("Prepare failed (User): " . $con->error);
+    // Load recipient display name for personalized email template.
+    $user_query = "SELECT fullname FROM registration WHERE email = '$safe_email' LIMIT 1";
+    $user_result = mysqli_query($con, $user_query);
+    if ($user_result === false) {
+        die("Query failed (User): " . mysqli_error($con));
     }
 
-    $stmt_user->bind_param("s", $email);
-    $stmt_user->execute();
-    $user_result = $stmt_user->get_result();
-    $user_data = $user_result->fetch_assoc();
-    $user_result->free();
-    $stmt_user->close();
+    $user_data = mysqli_fetch_assoc($user_result);
+    mysqli_free_result($user_result);
 
+    // If account no longer exists, clear flow state and restart.
     if (!$user_data) {
         unset($_SESSION['forgot_email'], $_SESSION['forgot_otp_verified']);
         setcookie('error', 'Account not found. Please start the reset process again.', time() + 5, "/");
@@ -26,19 +28,17 @@ if (isset($_SESSION['forgot_email'])) {
         exit();
     }
 
-    $stmt_get = $con->prepare("SELECT otp_attempts FROM password_token WHERE email = ? LIMIT 1");
-    if ($stmt_get === false) {
-        die("Prepare failed (GetToken): " . $con->error);
+    // Fetch current attempt count from token table to enforce resend cap.
+    $token_query = "SELECT otp_attempts FROM password_token WHERE email = '$safe_email' LIMIT 1";
+    $result = mysqli_query($con, $token_query);
+    if ($result === false) {
+        die("Query failed (GetToken): " . mysqli_error($con));
     }
 
-    $stmt_get->bind_param("s", $email);
-    $stmt_get->execute();
-    $result = $stmt_get->get_result();
-    $row = $result->fetch_assoc();
+    $row = mysqli_fetch_assoc($result);
+    mysqli_free_result($result);
 
-    $result->free();
-    $stmt_get->close();
-
+    // No token row means forgot-password flow was not initialized.
     if (!$row) {
         setcookie('error', "No password reset request found. Please try again.", time() + 5, "/");
         echo "<script>window.location.href = 'forgot_password.php';</script>";
@@ -47,6 +47,7 @@ if (isset($_SESSION['forgot_email'])) {
 
     $attempts = $row['otp_attempts'];
 
+    // Enforce max resend attempts before forcing user to restart later.
     if ($attempts >= 3) {
         setcookie('error', "OTP resend limit reached. You can generate a new OTP after 24 hours.", time() + 5, "/");
 ?>
@@ -61,21 +62,21 @@ if (isset($_SESSION['forgot_email'])) {
     $expiry_time = date("Y-m-d H:i:s", strtotime('+2 minutes'));
     $new_otp = rand(100000, 999999);
 
-    $stmt_update = $con->prepare("UPDATE password_token SET otp = ?, created_at = ?, expires_at = ?, otp_attempts = ?, last_resend = CURRENT_TIMESTAMP WHERE email = ?");
-    if ($stmt_update === false) {
-        die("Prepare failed (Update): " . $con->error);
-    }
+    // Increment attempts and rotate OTP + expiry metadata.
     $attempts += 1;
-    $stmt_update->bind_param("issis", $new_otp, $email_time, $expiry_time, $attempts, $email);
+    $safe_email_time = mysqli_real_escape_string($con, $email_time);
+    $safe_expiry_time = mysqli_real_escape_string($con, $expiry_time);
+    $update_query = "UPDATE password_token SET otp = $new_otp, created_at = '$safe_email_time', expires_at = '$safe_expiry_time', otp_attempts = $attempts, last_resend = CURRENT_TIMESTAMP WHERE email = '$safe_email'";
 
-    if ($stmt_update->execute()) {
-        $stmt_update->close();
+    if (mysqli_query($con, $update_query)) {
 
+        // Compose and send the fresh OTP email.
         $to = $email;
         $subject = "Reset password";
         $body = getForgotPasswordOtpEmailBody($new_otp, $user_data['fullname'] ?? 'User');
 
         if (sendEmail($to, $subject, $body, "")) {
+            // Keep session email, clear verification flag to require fresh OTP check.
             unset($_SESSION['forgot_otp_verified']);
             setcookie("success", "A new OTP has been sent successfully.", time() + 5, "/");
         ?>
@@ -92,6 +93,7 @@ if (isset($_SESSION['forgot_email'])) {
         <?php
         }
     } else {
+        // Token update failed.
         setcookie("error", "Error updating token in database.", time() + 5, "/");
         ?>
         <script>
@@ -102,6 +104,7 @@ if (isset($_SESSION['forgot_email'])) {
 
     exit();
 } else {
+    // Direct access without session should not proceed.
     header("Location: login.php");
     exit();
 }

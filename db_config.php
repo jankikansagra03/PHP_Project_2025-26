@@ -15,6 +15,22 @@ try {
 } catch (Exception) {
     echo "Error in connecting with DB";
 }
+
+date_default_timezone_set('Asia/Kolkata');
+$current_time = date("Y-m-d H:i:s");
+// Reset OTP resend attempts after 24 hours from last_resend.
+$reset_otp_attempts_query = "UPDATE password_token 
+SET otp_attempts = 0 
+WHERE last_resend IS NOT NULL 
+AND last_resend <= DATE_SUB(NOW(), INTERVAL 24 HOUR)";
+mysqli_query($con, $reset_otp_attempts_query);
+
+
+// set otp to null after 2 minutes of generation
+
+$expire_otp_query = "UPDATE password_token SET otp = NULL WHERE expires_at < NOW()";
+mysqli_query($con, $expire_otp_query);
+
 // // Step-4: create table   is a one time process so after creating table we can comment it
 // $create_table = "create table register(
 // id int auto_increment primary key, 
