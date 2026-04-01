@@ -61,7 +61,7 @@ function getOtpEmailBody($otp, $name = 'User')
     return getForgotPasswordOtpEmailBody($otp, $name);
 }
 
-function getForgotPasswordOtpEmailBody($otp, $name = 'User')
+function getForgotPasswordOtpEmailBody($otp , $name = 'User')
 {
     $safeName = htmlspecialchars($name ?: 'User');
 

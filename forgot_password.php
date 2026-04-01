@@ -301,7 +301,7 @@ include 'layout.php';
                 type: 'GET',
                 url: 'check_duplicate_Email.php',
                 data: {
-                    email1: email
+                    em: email
                 },
                 success: function(response) {
                     // Endpoint returns plain 'true' or 'false'.

@@ -1,5 +1,4 @@
 <?php
-include_once 'user_authentication.php';
 include_once 'db_config.php';
 $user_email = $_SESSION['user'];
 

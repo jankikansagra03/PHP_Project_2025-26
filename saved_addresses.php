@@ -1,5 +1,4 @@
 <?php
-include_once 'user_authentication.php';
 $title = "Saved Addresses - JK Store";
 $active_sidebar = 'addresses';
 $email = $_SESSION['user'];

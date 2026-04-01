@@ -2,6 +2,12 @@
 session_start();
 $title = "Login - JK Store";
 include_once 'db_config.php';
+
+$scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+$base_path = rtrim(str_replace('\\', '/', dirname($_SERVER['PHP_SELF'])), '/');
+$google_callback_url = $scheme . '://' . $host . $base_path . '/google_login.php';
+
 if (isset($_POST['login_btn'])) {
     $em = $_POST['email'];
     $pwd = $_POST['password'];
@@ -246,6 +252,19 @@ ob_start();
                             <button type="button" class="btn btn-outline-secondary flex-fill social-btn">
                                 <i class="fab fa-google"></i>
                             </button>
+                            <script src="https://accounts.google.com/gsi/client" async defer> </script>
+
+                            <div id="g_id_onload"
+                                data-client_id="315515659521-jhjkoroi9n75d08l4vescphgnu6qdbb8.apps.googleusercontent.com"
+                                data-context="signin"
+                                data-ux-mode="popup"
+                                data-login_uri="<?= htmlspecialchars($google_callback_url, ENT_QUOTES, 'UTF-8'); ?>"
+                                data-auto_prompt="false">
+                            </div>
+
+                            <div class="g_id_signin">
+                                <div class="g_id_signin" data-type="standard"></div>
+                            </div>
                             <button type="button" class="btn btn-outline-secondary flex-fill social-btn">
                                 <i class="fab fa-facebook-f"></i>
                             </button>

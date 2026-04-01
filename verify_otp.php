@@ -78,18 +78,8 @@ ob_start();
                     <!-- Submits the combined 6-digit OTP via hidden input -->
                     <form action="verify_otp.php" method="POST" id="verifyOtpForm">
                         <div class="mb-4">
-                            <label for="otp" class="form-label fw-semibold">OTP Code</label>
-                            <!-- 6 single-character fields for better OTP entry UX -->
-                            <div class="d-flex justify-content-between gap-2">
-                                <input type="text" class="form-control text-center fs-4 otp-digit" maxlength="1" inputmode="numeric" required>
-                                <input type="text" class="form-control text-center fs-4 otp-digit" maxlength="1" inputmode="numeric" required>
-                                <input type="text" class="form-control text-center fs-4 otp-digit" maxlength="1" inputmode="numeric" required>
-                                <input type="text" class="form-control text-center fs-4 otp-digit" maxlength="1" inputmode="numeric" required>
-                                <input type="text" class="form-control text-center fs-4 otp-digit" maxlength="1" inputmode="numeric" required>
-                                <input type="text" class="form-control text-center fs-4 otp-digit" maxlength="1" inputmode="numeric" required>
-                            </div>
-                            <!-- Backend reads this single value as the submitted OTP -->
-                            <input type="hidden" name="otp" id="otp_full">
+                            <label for="otp_input" class="form-label fw-semibold">OTP Code</label>
+                            <input type="text" class="form-control text-center fs-5" id="otp_input" name="otp" maxlength="6" inputmode="numeric" placeholder="Enter 6-digit OTP" autocomplete="one-time-code" required>
                             <span id="otp_error" class="text-danger small"></span>
                         </div>
 
@@ -109,82 +99,33 @@ ob_start();
 </div>
 
 <script>
-    // Cache frequently used elements.
-    const inputs = [...document.querySelectorAll('.otp-digit')];
-    const otpFull = document.getElementById('otp_full');
-    const verifyOtpForm = document.getElementById('verifyOtpForm');
+    const otpInput = document.getElementById('otp_input');      
     const timerDisplay = document.getElementById('timer');
     const resendButton = document.getElementById('resend_otp');
-    const TIMER_STORAGE_KEY = 'otpTimerEndAt';
-    const OTP_DURATION_MS = 120000;
 
-    // Reuse existing timer in session or start a fresh 2-minute window.
-    let timerEndAt = Number(sessionStorage.getItem(TIMER_STORAGE_KEY));
-    if (!timerEndAt || timerEndAt <= Date.now()) {
-        timerEndAt = Date.now() + OTP_DURATION_MS;
-        sessionStorage.setItem(TIMER_STORAGE_KEY, String(timerEndAt));
-    }
+    let timeLeft = Number(sessionStorage.getItem('otpTimeLeft')) || 60;
 
-    // Build one OTP string from six input boxes.
-    const syncOtpValue = () => {
-        otpFull.value = inputs.map((input) => input.value).join('');
-    };
-
-    // Update countdown label and resend button state.
-    const updateTimer = () => {
-        const secondsLeft = Math.max(0, Math.ceil((timerEndAt - Date.now()) / 1000));
-        resendButton.disabled = secondsLeft > 0;
-        timerDisplay.textContent = secondsLeft ?
-            `Regenerate OTP in ${secondsLeft} seconds` :
-            'You can now regenerate OTP.';
-
-        if (!secondsLeft) sessionStorage.removeItem(TIMER_STORAGE_KEY);
-    };
-
-    // Start countdown updates immediately and then every second.
-    updateTimer();
-    const countdown = setInterval(() => {
-        updateTimer();
-        if (!resendButton.disabled) clearInterval(countdown);
-    }, 1000);
-
-    // Input behavior: numeric only, auto-next, backspace-prev, and paste support.
-    inputs.forEach((input, index) => {
-        input.addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/\D/g, '').slice(0, 1);
-            if (e.target.value && index < inputs.length - 1) inputs[index + 1].focus();
-            syncOtpValue();
-        });
-
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && !input.value && index > 0) inputs[index - 1].focus();
-        });
-
-        input.addEventListener('paste', (e) => {
-            const pastedOtp = (e.clipboardData || window.clipboardData)
-                .getData('text')
-                .replace(/\D/g, '')
-                .slice(0, inputs.length);
-
-            if (!pastedOtp) return;
-
-            e.preventDefault();
-            inputs.forEach((field, fieldIndex) => {
-                field.value = pastedOtp[fieldIndex] || '';
-            });
-            syncOtpValue();
-            inputs[Math.min(pastedOtp.length, inputs.length) - 1].focus();
-        });
+    // Allow digits only.   
+    otpInput.addEventListener('input', () => {
+        otpInput.value = otpInput.value.replace(/\D/g, '').slice(0, 6);
     });
 
-    // Ensure hidden OTP is synced just before form submission.
-    verifyOtpForm.addEventListener('submit', syncOtpValue);
+    const countdown = setInterval(() => {
+        timeLeft--;
+        sessionStorage.setItem('otpTimeLeft', timeLeft);
+        resendButton.disabled = timeLeft > 0;
+        timerDisplay.textContent = timeLeft > 0 ?
+            `Regenerate OTP in ${timeLeft} seconds` :
+            'You can now regenerate OTP.';
+        if (timeLeft <= 0) {
+            sessionStorage.removeItem('otpTimeLeft');
+            clearInterval(countdown);
+        }
+    }, 1000);
 
-    // Allow resend only after timer expires.
     resendButton.addEventListener('click', (event) => {
         event.preventDefault();
         if (resendButton.disabled) return;
-        sessionStorage.removeItem(TIMER_STORAGE_KEY);
         window.location.href = 'resend_otp_forgot_password.php';
     });
 </script>

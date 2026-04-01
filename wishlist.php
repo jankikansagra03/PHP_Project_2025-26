@@ -1,5 +1,5 @@
 <?php
-include_once 'user_authentication.php';
+// include_once 'user_authentication.php';
 $email = $_SESSION['user'];
 include_once 'db_config.php';
 $q = "select * from wishlist where user_email='$email'";

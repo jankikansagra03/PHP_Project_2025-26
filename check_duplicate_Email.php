@@ -2,9 +2,9 @@
 // Lightweight AJAX endpoint used by forgot-password form to validate registration email.
 include_once 'db_config.php';
 
-if (isset($_GET['email1'])) {
+if (isset($_GET['em'])) {
     // Escape incoming email and check existence in registration table.
-    $email = mysqli_real_escape_string($con, trim($_GET['email1']));
+    $email = mysqli_real_escape_string($con, trim($_GET['em']));
     $sql = "SELECT id FROM registration WHERE email = '$email' LIMIT 1";
     $users = mysqli_query($con, $sql);
     if ($users === false) {

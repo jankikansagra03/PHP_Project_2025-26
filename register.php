@@ -296,11 +296,10 @@ if (isset($_POST['reg_btn'])) {
         move_uploaded_file($tmp_name, $upload_dir . $profile_picture);
         $to = $email;
         $subject = "Email Verification - JK Store";
-        $body = "
-        <h2>Welcome to JK Store, $fullname!</h2>
+        $body = "<h2>Welcome to JK Store, $fullname!</h2>
         <p>Thank you for registering an account with us. Please click the link below to verify your email address and activate your account:</p>
 
-        <a href='http://localhost/2025_practice/PHP_Project_2025-26/verify_email.php?token=' . $token . '&em='.$email.' style='display:inline-block; padding:10px 20px; background-color:#667eea; color:#fff; text-decoration:none; border-radius:5px;'>
+        <a href='http://localhost/2025_practice/PHP_Project_2025-26/verify_email.php?token=" . $token . "&em=" . $email . "' style='display:inline-block; padding:10px 20px; background-color:#667eea; color:#fff; text-decoration:none; border-radius:5px;'>
         Click here to verify email
         </a>
         ";

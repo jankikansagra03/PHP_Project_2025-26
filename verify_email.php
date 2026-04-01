@@ -22,8 +22,6 @@ if (isset($_GET['token']) && isset($_GET['em'])) {
     }
 } else {
     setcookie("error", "Invalid verification link.", time() + 5, "/");
-    header("Location: login.php");
-    exit();
 }
 
 ?>

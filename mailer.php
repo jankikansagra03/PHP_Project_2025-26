@@ -30,9 +30,9 @@ function sendEmail($to, $subject, $body, $file = null)
         // ---- SMTP Configuration ----
         $mail->isSMTP();
         $mail->SMTPAuth   = true;
-        $mail->SMTPSecure = 'ssl';
+        $mail->SMTPSecure = 'ssl';   //tls
         $mail->Host       = 'smtp.gmail.com';
-        $mail->Port       = 465;
+        $mail->Port       = 465; //587
         $mail->Username   = 'kansagrajanki@gmail.com';
         $mail->Password   = '';   // <-- Add your Gmail App Password here
 
