@@ -1,9 +1,9 @@
 <?php
 session_start();
-include_once 'db_config.php';
+include_once 'db_config.php'; // env.php is auto-loaded inside db_config.php
 
-// Google OAuth configuration
-$google_client_id = '315515659521-jhjkoroi9n75d08l4vescphgnu6qdbb8.apps.googleusercontent.com';
+// Google OAuth configuration — set GOOGLE_CLIENT_ID in .env
+$google_client_id = env('GOOGLE_CLIENT_ID', '');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     setcookie('error', 'Invalid request method for Google login.', time() + 5, '/');

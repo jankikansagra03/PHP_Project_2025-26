@@ -21,17 +21,19 @@ if (isset($_POST['action'])) {
         $perUserLimit = ($_POST['per_user_limit'] ?? '') === '' ? null : (int) $_POST['per_user_limit'];
         $status = (($_POST['status'] ?? 'Active') === 'Inactive') ? 'Inactive' : 'Active';
         $description = trim($_POST['description'] ?? '');
+        $appliesTo   = (($_POST['applies_to'] ?? 'all') === 'category') ? 'category' : 'all';
+        $categoryId  = ($appliesTo === 'category' && !empty($_POST['category_id'])) ? (int)$_POST['category_id'] : null;
 
         if ($action === 'create') {
-            $stmt = mysqli_prepare($con, 'INSERT INTO offers (code, discount_type, discount_value, min_order_amount, max_applicable_amount, max_discount_amount, valid_from, valid_to, usage_limit, per_user_limit, status, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
-            mysqli_stmt_bind_param($stmt, 'ssddddssiiss', $code, $discountType, $discountValue, $minOrderAmount, $maxApplicableAmount, $maxDiscountAmount, $validFrom, $validTo, $usageLimit, $perUserLimit, $status, $description);
+            $stmt = mysqli_prepare($con, 'INSERT INTO offers (code, discount_type, discount_value, min_order_amount, max_applicable_amount, max_discount_amount, valid_from, valid_to, usage_limit, per_user_limit, status, description, applies_to, category_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+            mysqli_stmt_bind_param($stmt, 'ssddddssiissis', $code, $discountType, $discountValue, $minOrderAmount, $maxApplicableAmount, $maxDiscountAmount, $validFrom, $validTo, $usageLimit, $perUserLimit, $status, $description, $appliesTo, $categoryId);
             if (mysqli_stmt_execute($stmt)) setcookie('success', 'Offer created successfully.', time() + 5, '/');
-            else setcookie('error', 'Failed to create offer.', time() + 5, '/');
+            else setcookie('error', 'Failed to create offer: ' . mysqli_stmt_error($stmt), time() + 5, '/');
         } else {
-            $stmt = mysqli_prepare($con, 'UPDATE offers SET code=?, discount_type=?, discount_value=?, min_order_amount=?, max_applicable_amount=?, max_discount_amount=?, valid_from=?, valid_to=?, usage_limit=?, per_user_limit=?, status=?, description=? WHERE id=?');
-            mysqli_stmt_bind_param($stmt, 'ssddddssiissi', $code, $discountType, $discountValue, $minOrderAmount, $maxApplicableAmount, $maxDiscountAmount, $validFrom, $validTo, $usageLimit, $perUserLimit, $status, $description, $id);
+            $stmt = mysqli_prepare($con, 'UPDATE offers SET code=?, discount_type=?, discount_value=?, min_order_amount=?, max_applicable_amount=?, max_discount_amount=?, valid_from=?, valid_to=?, usage_limit=?, per_user_limit=?, status=?, description=?, applies_to=?, category_id=? WHERE id=?');
+            mysqli_stmt_bind_param($stmt, 'ssddddssiissisi', $code, $discountType, $discountValue, $minOrderAmount, $maxApplicableAmount, $maxDiscountAmount, $validFrom, $validTo, $usageLimit, $perUserLimit, $status, $description, $appliesTo, $categoryId, $id);
             if (mysqli_stmt_execute($stmt)) setcookie('success', 'Offer updated successfully.', time() + 5, '/');
-            else setcookie('error', 'Failed to update offer.', time() + 5, '/');
+            else setcookie('error', 'Failed to update offer: ' . mysqli_stmt_error($stmt), time() + 5, '/');
         }
         mysqli_stmt_close($stmt);
         header('Location: ' . $redirectUrl);
@@ -76,6 +78,11 @@ $title = 'Admin Offers - JK Store';
 $admin_active = 'offers';
 $admin_page_title = 'Offers';
 
+// Fetch categories for dropdown
+$cats_q  = mysqli_query($con, "SELECT id, category_name FROM categories WHERE status='Active' ORDER BY category_name ASC");
+$categories = [];
+while ($c = mysqli_fetch_assoc($cats_q)) $categories[] = $c;
+
 ob_start();
 ?>
 <div class="page-card">
@@ -96,7 +103,9 @@ ob_start();
                         <th>Code</th>
                         <th>Type</th>
                         <th>Value</th>
+                        <th>Applies To</th>
                         <th>Validity</th>
+                        <th>Usage</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -107,10 +116,28 @@ ob_start();
                             <?php $isActive = strtolower((string) ($row['status'] ?? '')) === 'active'; ?>
                             <tr>
                                 <td><?= (int) $row['id'] ?></td>
-                                <td><span class="fw-semibold"><?= htmlspecialchars((string) ($row['code'] ?? ''), ENT_QUOTES, 'UTF-8') ?></span></td>
-                                <td><?= htmlspecialchars((string) ($row['discount_type'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
-                                <td><?= (float) ($row['discount_value'] ?? 0) ?></td>
-                                <td><small><?= htmlspecialchars((string) ($row['valid_from'] ?? ''), ENT_QUOTES, 'UTF-8') ?> to <?= htmlspecialchars((string) ($row['valid_to'] ?? ''), ENT_QUOTES, 'UTF-8') ?></small></td>
+                                <td><span class="fw-semibold"><?= htmlspecialchars((string) ($row['code'] ?? ''), ENT_QUOTES, 'UTF-8') ?></span><br><small class="text-muted"><?= htmlspecialchars((string)($row['description'] ?? ''), ENT_QUOTES, 'UTF-8') ?></small></td>
+                                <td><?= $row['discount_type'] === 'percent' ? '<span class="badge text-bg-info">%</span>' : '<span class="badge text-bg-warning">Fixed</span>' ?></td>
+                                <td><?= $row['discount_type'] === 'percent' ? (float)$row['discount_value'].'%' : '&#8377;'.(float)$row['discount_value'] ?></td>
+                                <td>
+                                    <?php if (($row['applies_to'] ?? 'all') === 'category' && !empty($row['category_id'])): ?>
+                                    <span class="badge text-bg-primary">Category</span><br>
+                                    <small class="text-muted"><?php
+                                        $cname = ''; foreach ($categories as $cc) { if ($cc['id'] == $row['category_id']) { $cname = $cc['category_name']; break; } }
+                                        echo htmlspecialchars($cname ?: 'Cat #'.$row['category_id'], ENT_QUOTES);
+                                    ?></small>
+                                    <?php else: ?>
+                                    <span class="badge text-bg-secondary">All</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td><small><?= htmlspecialchars((string) ($row['valid_from'] ?? ''), ENT_QUOTES, 'UTF-8') ?><br>to <?= htmlspecialchars((string) ($row['valid_to'] ?? ''), ENT_QUOTES, 'UTF-8') ?></small></td>
+                                <td>
+                                    <?php
+                                    $usedCount = (int)($row['times_used'] ?? 0);
+                                    $limit     = $row['usage_limit'] ? (int)$row['usage_limit'] : null;
+                                    echo $usedCount . ($limit ? ' / '.$limit : ' / ∞');
+                                    ?>
+                                </td>
                                 <td><span class="badge <?= $isActive ? 'text-bg-success' : 'text-bg-secondary' ?>"><?= $isActive ? 'Active' : 'Inactive' ?></span></td>
                                 <td>
                                     <div class="products-actions d-flex gap-1">
@@ -129,14 +156,14 @@ ob_start();
                                             </div>
                                             <div class="modal-body modal-body-scroll"><input type="hidden" name="action" value="update"><input type="hidden" name="id" value="<?= (int) $row['id'] ?>"><input type="hidden" name="return_search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="return_page" value="<?= (int) $page ?>">
                                                 <div class="row g-2">
-                                                    <div class="col-md-6"><label class="form-label">Code</label><input type="text" class="form-control" name="code" value="<?= htmlspecialchars((string) ($row['code'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required></div>
+                                                     <div class="col-md-6"><label class="form-label">Code <span class="text-danger">*</span></label><input type="text" class="form-control" name="code" value="<?= htmlspecialchars((string) ($row['code'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required data-validation="required,min,max" data-min="2" data-max="100" data-error="#eo_code_<?= (int) $row['id'] ?>"><small id="eo_code_<?= (int) $row['id'] ?>"></small></div>
                                                     <div class="col-md-6"><label class="form-label">Discount Type</label><select class="form-select" name="discount_type">
                                                             <option value="percent" <?= ($row['discount_type'] ?? '') === 'percent' ? 'selected' : '' ?>>Percent</option>
                                                             <option value="fixed" <?= ($row['discount_type'] ?? '') === 'fixed' ? 'selected' : '' ?>>Fixed</option>
                                                         </select></div>
                                                 </div>
                                                 <div class="row g-2 mt-1">
-                                                    <div class="col-md-4"><label class="form-label">Discount Value</label><input type="number" step="0.01" class="form-control" name="discount_value" value="<?= (float) ($row['discount_value'] ?? 0) ?>"></div>
+                                                     <div class="col-md-4"><label class="form-label">Discount Value <span class="text-danger">*</span></label><input type="number" step="0.01" class="form-control" name="discount_value" value="<?= (float) ($row['discount_value'] ?? 0) ?>" required data-validation="required,number" data-error="#eo_dv_<?= (int) $row['id'] ?>"><small id="eo_dv_<?= (int) $row['id'] ?>"></small></div>
                                                     <div class="col-md-4"><label class="form-label">Min Order</label><input type="number" step="0.01" class="form-control" name="min_order_amount" value="<?= htmlspecialchars((string) ($row['min_order_amount'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"></div>
                                                     <div class="col-md-4"><label class="form-label">Max Discount</label><input type="number" step="0.01" class="form-control" name="max_discount_amount" value="<?= htmlspecialchars((string) ($row['max_discount_amount'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"></div>
                                                 </div>
@@ -145,14 +172,29 @@ ob_start();
                                                     <div class="col-md-6"><label class="form-label">Valid To</label><input type="datetime-local" class="form-control" name="valid_to" value="<?= !empty($row['valid_to']) ? date('Y-m-d\\TH:i', strtotime((string) $row['valid_to'])) : '' ?>"></div>
                                                 </div>
                                                 <div class="row g-2 mt-1">
-                                                    <div class="col-md-4"><label class="form-label">Usage Limit</label><input type="number" class="form-control" name="usage_limit" value="<?= htmlspecialchars((string) ($row['usage_limit'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"></div>
-                                                    <div class="col-md-4"><label class="form-label">Per User Limit</label><input type="number" class="form-control" name="per_user_limit" value="<?= htmlspecialchars((string) ($row['per_user_limit'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"></div>
+                                                     <div class="col-md-4"><label class="form-label">Usage Limit</label><input type="number" class="form-control" name="usage_limit" value="<?= htmlspecialchars((string) ($row['usage_limit'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" data-validation="number" data-error="#eo_ul_<?= (int) $row['id'] ?>"><small id="eo_ul_<?= (int) $row['id'] ?>"></small></div>
+                                                     <div class="col-md-4"><label class="form-label">Per User Limit</label><input type="number" class="form-control" name="per_user_limit" value="<?= htmlspecialchars((string) ($row['per_user_limit'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" data-validation="number" data-error="#eo_pul_<?= (int) $row['id'] ?>"><small id="eo_pul_<?= (int) $row['id'] ?>"></small></div>
                                                     <div class="col-md-4"><label class="form-label">Status</label><select class="form-select" name="status">
                                                             <option value="Active" <?= $isActive ? 'selected' : '' ?>>Active</option>
                                                             <option value="Inactive" <?= !$isActive ? 'selected' : '' ?>>Inactive</option>
                                                         </select></div>
                                                 </div>
-                                                <div class="mt-2"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="3"><?= htmlspecialchars((string) ($row['description'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea></div>
+                                                 <div class="mt-2"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="2" data-validation="max" data-max="500" data-error="#eo_desc_<?= (int) $row['id'] ?>"><?= htmlspecialchars((string) ($row['description'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea><small id="eo_desc_<?= (int) $row['id'] ?>"></small></div>
+                                                <div class="row g-2 mt-1">
+                                                    <div class="col-md-6"><label class="form-label">Applies To</label><select class="form-select" name="applies_to" onchange="toggleCatField(this,'eco_cat_<?= (int) $row['id'] ?>')">
+                                                        <option value="all" <?= (($row['applies_to'] ?? 'all') === 'all') ? 'selected' : '' ?>>All Products (Site-wide)</option>
+                                                        <option value="category" <?= (($row['applies_to'] ?? '') === 'category') ? 'selected' : '' ?>>Specific Category</option>
+                                                    </select></div>
+                                                    <div class="col-md-6" id="eco_cat_<?= (int) $row['id'] ?>" style="<?= (($row['applies_to'] ?? 'all') !== 'category') ? 'display:none' : '' ?>">
+                                                        <label class="form-label">Category</label>
+                                                        <select class="form-select" name="category_id">
+                                                            <option value="">-- Select Category --</option>
+                                                            <?php foreach ($categories as $cat): ?>
+                                                            <option value="<?= $cat['id'] ?>" <?= ((int)($row['category_id'] ?? 0) === (int)$cat['id']) ? 'selected' : '' ?>><?= htmlspecialchars($cat['category_name'], ENT_QUOTES) ?></option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Update</button></div>
                                         </form>
@@ -205,14 +247,14 @@ ob_start();
                 </div>
                 <div class="modal-body modal-body-scroll"><input type="hidden" name="action" value="create"><input type="hidden" name="return_search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="return_page" value="<?= (int) $page ?>">
                     <div class="row g-2">
-                        <div class="col-md-6"><label class="form-label">Code</label><input type="text" class="form-control" name="code" required></div>
+                         <div class="col-md-6"><label class="form-label">Code <span class="text-danger">*</span></label><input type="text" class="form-control" name="code" required data-validation="required,min,max" data-min="2" data-max="100" data-error="#ao_code"><small id="ao_code"></small></div>
                         <div class="col-md-6"><label class="form-label">Discount Type</label><select class="form-select" name="discount_type">
                                 <option value="percent" selected>Percent</option>
                                 <option value="fixed">Fixed</option>
                             </select></div>
                     </div>
                     <div class="row g-2 mt-1">
-                        <div class="col-md-4"><label class="form-label">Discount Value</label><input type="number" step="0.01" class="form-control" name="discount_value" value="0"></div>
+                         <div class="col-md-4"><label class="form-label">Discount Value <span class="text-danger">*</span></label><input type="number" step="0.01" class="form-control" name="discount_value" value="0" required data-validation="required,number" data-error="#ao_dv"><small id="ao_dv"></small></div>
                         <div class="col-md-4"><label class="form-label">Min Order</label><input type="number" step="0.01" class="form-control" name="min_order_amount"></div>
                         <div class="col-md-4"><label class="form-label">Max Discount</label><input type="number" step="0.01" class="form-control" name="max_discount_amount"></div>
                     </div>
@@ -221,14 +263,29 @@ ob_start();
                         <div class="col-md-6"><label class="form-label">Valid To</label><input type="datetime-local" class="form-control" name="valid_to"></div>
                     </div>
                     <div class="row g-2 mt-1">
-                        <div class="col-md-4"><label class="form-label">Usage Limit</label><input type="number" class="form-control" name="usage_limit"></div>
-                        <div class="col-md-4"><label class="form-label">Per User Limit</label><input type="number" class="form-control" name="per_user_limit"></div>
+                         <div class="col-md-4"><label class="form-label">Usage Limit</label><input type="number" class="form-control" name="usage_limit" data-validation="number" data-error="#ao_ul"><small id="ao_ul"></small></div>
+                         <div class="col-md-4"><label class="form-label">Per User Limit</label><input type="number" class="form-control" name="per_user_limit" data-validation="number" data-error="#ao_pul"><small id="ao_pul"></small></div>
                         <div class="col-md-4"><label class="form-label">Status</label><select class="form-select" name="status">
                                 <option value="Active" selected>Active</option>
                                 <option value="Inactive">Inactive</option>
                             </select></div>
                     </div>
-                    <div class="mt-2"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="3"></textarea></div>
+                     <div class="mt-2"><label class="form-label">Description</label><textarea class="form-control" name="description" rows="2" data-validation="max" data-max="500" data-error="#ao_desc"></textarea><small id="ao_desc"></small></div>
+                    <div class="row g-2 mt-1">
+                        <div class="col-md-6"><label class="form-label">Applies To</label><select class="form-select" name="applies_to" onchange="toggleCatField(this,'ao_cat_field')">
+                            <option value="all" selected>All Products (Site-wide)</option>
+                            <option value="category">Specific Category</option>
+                        </select></div>
+                        <div class="col-md-6" id="ao_cat_field" style="display:none">
+                            <label class="form-label">Category</label>
+                            <select class="form-select" name="category_id">
+                                <option value="">-- Select Category --</option>
+                                <?php foreach ($categories as $cat): ?>
+                                <option value="<?= $cat['id'] ?>"><?= htmlspecialchars($cat['category_name'], ENT_QUOTES) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-success">Create</button></div>
             </form>
@@ -253,6 +310,10 @@ ob_start();
             }, 400);
         });
     });
+    function toggleCatField(sel, targetId) {
+        var el = document.getElementById(targetId);
+        if (el) el.style.display = sel.value === 'category' ? '' : 'none';
+    }
 </script>
 
 <?php

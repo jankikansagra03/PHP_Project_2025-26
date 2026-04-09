@@ -258,7 +258,7 @@ ob_start();
                             <th>Stock</th>
                             <th>Main Image</th>
                             <th>Status</th>
-                            <th style="min-width: 240px;">Actions</th>
+                            <th class="action-col-240">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -356,7 +356,7 @@ ob_start();
                                                             <?php if (!empty($galleryImages)): ?>
                                                                 <div class="d-flex flex-wrap gap-2">
                                                                     <?php foreach ($galleryImages as $img): ?>
-                                                                        <img src="<?= htmlspecialchars($img, ENT_QUOTES, 'UTF-8') ?>" alt="gallery" style="width: 140px; height: 140px; object-fit: cover;" class="rounded border">
+                                                                        <img src="<?= htmlspecialchars($img, ENT_QUOTES, 'UTF-8') ?>" alt="gallery" class="rounded border gallery-thumb-140">
                                                                     <?php endforeach; ?>
                                                                 </div>
                                                             <?php else: ?>
@@ -462,7 +462,7 @@ ob_start();
                                                     <?php if (!empty($row['image'])): ?>
                                                         <div class="mb-3 p-3 border rounded bg-light">
                                                             <p class="mb-2 fw-semibold">Current Main Image</p>
-                                                            <img src="<?= htmlspecialchars((string) $row['image'], ENT_QUOTES, 'UTF-8') ?>" alt="main" style="width:120px;height:120px;object-fit:cover;" class="rounded border mb-2">
+                                                            <img src="<?= htmlspecialchars((string) $row['image'], ENT_QUOTES, 'UTF-8') ?>" alt="main" class="rounded border mb-2 main-thumb-120">
                                                             <div class="form-check">
                                                                 <input class="form-check-input" type="checkbox" name="remove_main_image" value="1" id="removeMain<?= (int) $row['id'] ?>">
                                                                 <label class="form-check-label" for="removeMain<?= (int) $row['id'] ?>">Remove current main image</label>
@@ -482,7 +482,7 @@ ob_start();
                                                             <div class="row g-2">
                                                                 <?php foreach ($galleryImages as $gIndex => $gImage): ?>
                                                                     <div class="col-6 col-md-3">
-                                                                        <img src="<?= htmlspecialchars($gImage, ENT_QUOTES, 'UTF-8') ?>" alt="gallery" class="img-fluid rounded border" style="height:100px;object-fit:cover;">
+                                                                        <img src="<?= htmlspecialchars($gImage, ENT_QUOTES, 'UTF-8') ?>" alt="gallery" class="img-fluid rounded border gallery-thumb-100">
                                                                         <div class="form-check mt-1">
                                                                             <input class="form-check-input" type="checkbox" name="remove_gallery_images[]" value="<?= htmlspecialchars($gImage, ENT_QUOTES, 'UTF-8') ?>" id="rmGallery<?= (int) $row['id'] ?>_<?= (int) $gIndex ?>">
                                                                             <label class="form-check-label small" for="rmGallery<?= (int) $row['id'] ?>_<?= (int) $gIndex ?>">Remove</label>

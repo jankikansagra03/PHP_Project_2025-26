@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $title = "My Profile - JK Store";
 include_once 'user_authentication.php';
 include_once 'db_config.php';
@@ -37,134 +37,6 @@ if (isset($_POST['update_picture'])) {
 }
 ob_start();
 ?>
-<style>
-    .profile-header-card {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.0));
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-        border-radius: 20px;
-        overflow: hidden;
-    }
-
-    .profile-cover {
-        height: 200px;
-        background: var(--primary-gradient);
-        position: relative;
-    }
-
-    .profile-cover::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 80px;
-        background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.3));
-    }
-
-    .profile-avatar-wrapper {
-        position: relative;
-        margin-top: -75px;
-        margin-bottom: 1rem;
-        display: inline-block;
-    }
-
-    .profile-avatar {
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        border: 5px solid rgba(255, 255, 255, 0.8);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        object-fit: cover;
-        background: #fff;
-    }
-
-    .btn-camera {
-        position: absolute;
-        bottom: 5px;
-        right: 5px;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: var(--primary-gradient);
-        color: white;
-        border: 2px solid white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: transform 0.3s ease;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-    }
-
-    .btn-camera:hover {
-        transform: scale(1.1);
-    }
-
-    .info-card {
-        background: rgba(255, 255, 255, 0.7);
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.5);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .info-card:hover {
-        transform: translateY(-5px);
-        background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.15);
-    }
-
-    .info-icon {
-        width: 45px;
-        height: 45px;
-        border-radius: 12px;
-        background: rgba(102, 126, 234, 0.1);
-        color: #667eea;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        margin-bottom: 1rem;
-    }
-
-    .detail-label {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #6c757d;
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-    }
-
-    .detail-value {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #2d3748;
-        margin-bottom: 0;
-    }
-
-    .section-title {
-        position: relative;
-        padding-bottom: 10px;
-        margin-bottom: 25px;
-        color: #2d3748;
-        font-weight: 700;
-    }
-
-    .section-title::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 50px;
-        height: 3px;
-        background: var(--primary-gradient);
-        border-radius: 3px;
-    }
-</style>
-
 <div class="profile-header-card bg-white mb-4">
     <!-- Cover Image -->
     <div class="profile-cover"></div>
@@ -279,7 +151,7 @@ ob_start();
 <!-- Edit Picture Modal -->
 <div class="modal fade" id="editPictureModal" tabindex="-1" aria-labelledby="editPictureModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px;">
+        <div class="modal-content border-0 shadow-lg modal-radius-20">
             <div class="modal-header border-0 pb-0">
                 <h5 class="modal-title fw-bold" id="editPictureModalLabel">Change Profile Picture</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -288,10 +160,9 @@ ob_start();
                 <form action="profile.php" method="POST" enctype="multipart/form-data">
                     <div class="text-center mb-4">
                         <div class="position-relative d-inline-block">
-                            <div class="overflow-hidden rounded-circle shadow-sm mx-auto"
-                                style="width: 150px; height: 150px; border: 4px solid #f8f9fa;">
+                            <div class="overflow-hidden rounded-circle shadow-sm mx-auto profile-preview-wrap">
                                 <img src="images/profile_pictures/<?= $user_data['profile_picture'] ?>" id="modalAvatarPreview" alt="Profile Picture"
-                                    style="width: 100%; height: 100%; object-fit: cover;">
+                                    class="profile-preview-img">
                             </div>
                         </div>
                     </div>

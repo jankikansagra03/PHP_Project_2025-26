@@ -30,192 +30,15 @@ if (isset($_SESSION['user'])) {
     <script src="js/jquery.js"></script>
     <script src="js/validate.js"></script>
     <!-- Custom CSS -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
-    <style>
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --dark-bg: #1a1a2e;
-            --card-bg: #16213e;
-        }
-
-        body {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background-attachment: fixed;
-        }
-
-        /* Navbar Styling */
-        .navbar {
-            background: rgba(255, 255, 255, 0.95) !important;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .nav-link {
-            font-weight: 500;
-            color: #333 !important;
-            transition: all 0.3s ease;
-            position: relative;
-            margin: 0 0.5rem;
-        }
-
-        .nav-link:hover {
-            color: #667eea !important;
-            transform: translateY(-2px);
-        }
-
-        .nav-item:not(.dropdown) .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: 0;
-            left: 50%;
-            background: var(--primary-gradient);
-            transition: all 0.3s ease;
-            transform: translateX(-50%);
-        }
-
-        .nav-item:not(.dropdown) .nav-link:hover::after {
-            width: 80%;
-        }
-
-        .nav-link.dropdown-toggle {
-            white-space: nowrap;
-        }
-
-        .nav-link.dropdown-toggle::after {
-            margin-left: 0.45rem;
-            vertical-align: 0.15em;
-        }
-
-        .nav-user-avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid rgba(102, 126, 234, 0.35);
-        }
-
-        .dropdown-user-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid rgba(102, 126, 234, 0.2);
-        }
-
-        .user-dropdown {
-            min-width: 280px;
-        }
-
-        .btn-gradient {
-            background: var(--primary-gradient);
-            border: none;
-            color: white;
-            font-weight: 600;
-            padding: 0.5rem 1.5rem;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-gradient:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-            color: white;
-        }
-
-        .btn-outline-gradient {
-            border: 2px solid #667eea;
-            color: #667eea;
-            font-weight: 600;
-            padding: 0.5rem 1.5rem;
-            border-radius: 50px;
-            background: transparent;
-            transition: all 0.3s ease;
-        }
-
-        .btn-outline-gradient:hover {
-            background: var(--primary-gradient);
-            color: white;
-            border-color: transparent;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        }
-
-        /* Main Content */
-        main {
-            flex: 1;
-            padding: 3rem 0;
-        }
-
-        /* Footer */
-        footer {
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-            color: white;
-            padding: 2rem 0;
-            margin-top: auto;
-        }
-
-        footer a {
-            color: white;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        footer a:hover {
-            color: #f093fb;
-            transform: translateX(5px);
-        }
-
-        /* Card Styling */
-        .card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in-up {
-            animation: fadeInUp 0.6s ease-out;
-        }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js"
+        integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous">
+    </script>
+    <link rel="stylesheet" href="css/theme-core.css">
+    <link rel="stylesheet" href="css/theme-dashboard.css">
+    <link rel="stylesheet" href="css/theme-pages.css">
 </head>
 
 <body>
@@ -271,16 +94,49 @@ if (isset($_SESSION['user'])) {
                                 $display_picture = $nav_user_data['profile_picture'];
                             }
                         }
+
+                        // Cart & Wishlist counts
+                        $nav_cart_email    = mysqli_real_escape_string($con, $_SESSION['user']);
+                        $nav_cart_res      = mysqli_query($con, "SELECT SUM(quantity) as total FROM cart WHERE user_email='$nav_cart_email'");
+                        $nav_cart_count    = (int)(mysqli_fetch_assoc($nav_cart_res)['total'] ?? 0);
+                        $nav_wl_res        = mysqli_query($con, "SELECT COUNT(*) as total FROM wishlist WHERE user_email='$nav_cart_email'");
+                        $nav_wl_count      = (int)(mysqli_fetch_assoc($nav_wl_res)['total'] ?? 0);
                     ?>
+                        <!-- Wishlist Icon -->
+                        <li class="nav-item me-1">
+                            <a href="wishlist.php" class="nav-link position-relative" title="My Wishlist">
+                                <i class="fas fa-heart fs-5"></i>
+                                <span id="navWishlistBadge"
+                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-inline-flex align-items-center justify-content-center"
+                                    style="font-size:0.6rem; min-width:18px; height:18px; <?= $nav_wl_count === 0 ? 'display:none!important;' : '' ?>">
+                                    <?= $nav_wl_count ?>
+                                </span>
+                            </a>
+                        </li>
+                        <!-- Cart Icon -->
+                        <li class="nav-item me-2">
+                            <a href="cart.php" class="nav-link position-relative" title="My Cart">
+                                <i class="fas fa-shopping-cart fs-5"></i>
+                                <span id="navCartBadge"
+                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-inline-flex align-items-center justify-content-center"
+                                    style="font-size:0.6rem; min-width:18px; height:18px; <?= $nav_cart_count === 0 ? 'display:none!important;' : '' ?>">
+                                    <?= $nav_cart_count ?>
+                                </span>
+                            </a>
+                        </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="images/profile_pictures/<?= htmlspecialchars($display_picture, ENT_QUOTES, 'UTF-8') ?>" alt="Profile" class="nav-user-avatar">
-                                <span class="d-none d-md-inline"><?= htmlspecialchars($display_name, ENT_QUOTES, 'UTF-8') ?></span>
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" role="button"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <img src="images/profile_pictures/<?= htmlspecialchars($display_picture, ENT_QUOTES, 'UTF-8') ?>"
+                                    alt="Profile" class="nav-user-avatar">
+                                <span
+                                    class="d-none d-md-inline"><?= htmlspecialchars($display_name, ENT_QUOTES, 'UTF-8') ?></span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end user-dropdown">
                                 <li class="px-3 py-2">
                                     <div class="d-flex align-items-center gap-2">
-                                        <img src="images/profile_pictures/<?= $display_picture ?>" alt="Profile" class="dropdown-user-avatar">
+                                        <img src="images/profile_pictures/<?= $display_picture ?>" alt="Profile"
+                                            class="dropdown-user-avatar">
                                         <div>
                                             <h6 class="mb-0"><?= $display_name ?></h6>
                                             <small class="text-muted d-block"><?= $display_email ?></small>
@@ -291,10 +147,14 @@ if (isset($_SESSION['user'])) {
                                 <li>
                                     <hr class="dropdown-divider">
                                 </li>
-                                <li><a class="dropdown-item" href="dashboard.php"><i class="fas fa-gauge-high me-2"></i>Dashboard</a></li>
-                                <li><a class="dropdown-item" href="edit_profile.php"><i class="fas fa-user-pen me-2"></i>Edit Profile</a></li>
-                                <li><a class="dropdown-item" href="change_password.php"><i class="fas fa-key me-2"></i>Change Password</a></li>
-                                <li><a class="dropdown-item text-danger" href="logout.php"><i class="fas fa-right-from-bracket me-2"></i>Logout</a></li>
+                                <li><a class="dropdown-item" href="dashboard.php"><i
+                                            class="fas fa-gauge-high me-2"></i>Dashboard</a></li>
+                                <li><a class="dropdown-item" href="edit_profile.php"><i
+                                            class="fas fa-user-pen me-2"></i>Edit Profile</a></li>
+                                <li><a class="dropdown-item" href="change_password.php"><i
+                                            class="fas fa-key me-2"></i>Change Password</a></li>
+                                <li><a class="dropdown-item text-danger" href="logout.php"><i
+                                            class="fas fa-right-from-bracket me-2"></i>Logout</a></li>
                             </ul>
                         </li>
                     <?php
@@ -342,7 +202,7 @@ if (isset($_SESSION['user'])) {
     </div>
     <!-- Main Content -->
     <main>
-        <div class="container-fluid px-5">
+        <div class="row m-3 p-4">
             <?php echo $content; ?>
         </div>
     </main>
@@ -364,8 +224,39 @@ if (isset($_SESSION['user'])) {
         </div>
     </footer>
 
+    <button class="theme-fab" id="themeFab" type="button" aria-label="Open theme settings">
+        <i class="fas fa-palette"></i>
+    </button>
+    <div class="theme-panel" id="themePanel" aria-hidden="true">
+        <div class="theme-panel-head">
+            <h6>Theme Studio</h6>
+            <button type="button" class="btn-close" id="themePanelClose" aria-label="Close"></button>
+        </div>
+        <div class="theme-panel-body">
+            <div class="theme-presets" aria-label="Theme presets" id="themePresetList"></div>
+            <label class="theme-control"><span>Primary</span><input type="color" data-theme-var="--theme-primary"
+                    value="#1f7a8c"></label>
+            <label class="theme-control"><span>Secondary</span><input type="color" data-theme-var="--theme-secondary"
+                    value="#bf5af2"></label>
+            <label class="theme-control"><span>Accent</span><input type="color" data-theme-var="--theme-accent"
+                    value="#ff7a59"></label>
+            <label class="theme-control"><span>Surface</span><input type="color" data-theme-var="--theme-surface"
+                    value="#ffffff"></label>
+            <label class="theme-control"><span>Text</span><input type="color" data-theme-var="--theme-text"
+                    value="#1f2937"></label>
+            <label class="theme-control"><span>BG Start</span><input type="color" data-theme-var="--theme-bg-start"
+                    value="#0f172a"></label>
+            <label class="theme-control"><span>BG End</span><input type="color" data-theme-var="--theme-bg-end"
+                    value="#1f2937"></label>
+            <div class="theme-actions">
+                <button class="btn btn-sm btn-outline-secondary" id="themeReset" type="button">Reset</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/theme-customizer.js"></script>
 </body>
 
 </html>

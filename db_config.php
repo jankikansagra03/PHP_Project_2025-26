@@ -1,19 +1,25 @@
 <?php
-//Step-1 : Create connection
-try {
-    $con = mysqli_connect("localhost", "root", "");
-    if (!$con) {
-        throw new Exception();
-    }
-} catch (Exception) {
-    echo "Error in connection";
+// ── Load .env (only once, from project root) ──────────────────
+if (!function_exists('env')) {
+    require_once __DIR__ . '/env.php';
 }
 
-//step-3: select database
+// ── Database Connection ───────────────────────────────────────
 try {
-    mysqli_select_db($con, "php_project_25_26");
-} catch (Exception) {
-    echo "Error in connecting with DB";
+    $con = mysqli_connect(
+        env('DB_HOST', 'localhost'),
+        env('DB_USER', 'root'),
+        env('DB_PASS', ''),
+        env('DB_NAME', 'php_project_25_26')
+    );
+    if (!$con) throw new Exception(mysqli_connect_error());
+    // Set charset
+    mysqli_set_charset($con, env('DB_CHARSET', 'utf8mb4'));
+} catch (Exception $e) {
+    if (env('APP_DEBUG', false)) {
+        die('DB Connection Error: ' . $e->getMessage());
+    }
+    die('Database connection failed. Please try again later.');
 }
 
 date_default_timezone_set('Asia/Kolkata');

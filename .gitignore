@@ -1,1 +1,17 @@
+# ── Secrets / Config — NEVER commit these ──
+.env
+
+# ── Old gitignore entry ──
 php_project_2025_26/mailer.php
+
+# ── Uploads / generated assets ──
+uploads/
+*.log
+
+# ── OS / Editor junk ──
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp

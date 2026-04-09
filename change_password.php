@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include 'user_authentication.php';
 include_once 'db_config.php';
 $user_email = $_SESSION['user'];
@@ -49,30 +49,9 @@ $title = "Change Password - JK Store";
 $active_sidebar = 'password';
 ob_start();
 ?>
-<style>
-    .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
-    }
-
-    .password-strength {
-        height: 5px;
-        border-radius: 3px;
-        background: #e0e0e0;
-        margin-top: 0.5rem;
-        overflow: hidden;
-    }
-
-    .password-strength-bar {
-        height: 100%;
-        transition: width 0.3s ease, background 0.3s ease;
-        width: 0%;
-    }
-</style>
-
 <div class="card border-0 shadow-lg mb-4">
     <div class="card-body p-5">
-        <h2 class="fw-bold mb-2" style="color: #667eea;"><i class="fas fa-shield-alt me-2"></i>Security Settings</h2>
+        <h2 class="fw-bold mb-2 heading-primary"><i class="fas fa-shield-alt me-2"></i>Security Settings</h2>
         <p class="text-muted mb-4">Manage your password and account security</p>
 
         <div class="alert alert-info border-0 shadow-sm mb-4">

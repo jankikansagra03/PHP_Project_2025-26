@@ -131,11 +131,11 @@ ob_start();
                                         <h5 class="modal-title">Edit Offer Usage</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
                                     <div class="modal-body"><input type="hidden" name="action" value="update"><input type="hidden" name="id" value="<?= (int) $row['id'] ?>"><input type="hidden" name="return_search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="return_page" value="<?= (int) $page ?>">
-                                        <div class="mb-2"><label class="form-label">Offer</label><select class="form-select" name="offer_id" required>
-                                                <option value="">Select offer</option><?php foreach ($offers as $o): ?><option value="<?= (int) $o['id'] ?>" <?= (int) ($row['offer_id'] ?? 0) === (int) $o['id'] ? 'selected' : '' ?>><?= htmlspecialchars((string) $o['code'], ENT_QUOTES, 'UTF-8') ?></option><?php endforeach; ?>
-                                            </select></div>
-                                        <div class="mb-2"><label class="form-label">User Email</label><input type="email" class="form-control" name="user_email" value="<?= htmlspecialchars((string) ($row['user_email'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required></div>
-                                        <div class="mb-2"><label class="form-label">Order ID</label><input type="number" class="form-control" name="order_id" value="<?= htmlspecialchars((string) ($row['order_id'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"></div>
+                                         <div class="mb-2"><label class="form-label">Offer <span class="text-danger">*</span></label><select class="form-select" name="offer_id" required data-validation="required,select" data-error="#eou_oid_<?= (int) $row['id'] ?>">
+                                                 <option value="">Select offer</option><?php foreach ($offers as $o): ?><option value="<?= (int) $o['id'] ?>" <?= (int) ($row['offer_id'] ?? 0) === (int) $o['id'] ? 'selected' : '' ?>><?= htmlspecialchars((string) $o['code'], ENT_QUOTES, 'UTF-8') ?></option><?php endforeach; ?>
+                                             </select><small id="eou_oid_<?= (int) $row['id'] ?>"></small></div>
+                                         <div class="mb-2"><label class="form-label">User Email <span class="text-danger">*</span></label><input type="email" class="form-control" name="user_email" value="<?= htmlspecialchars((string) ($row['user_email'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required data-validation="required,email" data-error="#eou_em_<?= (int) $row['id'] ?>"><small id="eou_em_<?= (int) $row['id'] ?>"></small></div>
+                                         <div class="mb-2"><label class="form-label">Order ID</label><input type="number" class="form-control" name="order_id" value="<?= htmlspecialchars((string) ($row['order_id'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" data-validation="number" data-error="#eou_ord_<?= (int) $row['id'] ?>"><small id="eou_ord_<?= (int) $row['id'] ?>"></small></div>
                                         <div class="mb-1"><label class="form-label">Used At</label><input type="datetime-local" class="form-control" name="used_at" value="<?= !empty($row['used_at']) ? date('Y-m-d\\TH:i', strtotime((string) $row['used_at'])) : '' ?>"></div>
                                     </div>
                                     <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Update</button></div>
@@ -180,11 +180,11 @@ ob_start();
                     <h5 class="modal-title">Add Offer Usage</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body"><input type="hidden" name="action" value="create"><input type="hidden" name="return_search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="return_page" value="<?= (int) $page ?>">
-                    <div class="mb-2"><label class="form-label">Offer</label><select class="form-select" name="offer_id" required>
-                            <option value="">Select offer</option><?php foreach ($offers as $o): ?><option value="<?= (int) $o['id'] ?>"><?= htmlspecialchars((string) $o['code'], ENT_QUOTES, 'UTF-8') ?></option><?php endforeach; ?>
-                        </select></div>
-                    <div class="mb-2"><label class="form-label">User Email</label><input type="email" class="form-control" name="user_email" required></div>
-                    <div class="mb-1"><label class="form-label">Order ID</label><input type="number" class="form-control" name="order_id"></div>
+                     <div class="mb-2"><label class="form-label">Offer <span class="text-danger">*</span></label><select class="form-select" name="offer_id" required data-validation="required,select" data-error="#aou_oid">
+                             <option value="">Select offer</option><?php foreach ($offers as $o): ?><option value="<?= (int) $o['id'] ?>"><?= htmlspecialchars((string) $o['code'], ENT_QUOTES, 'UTF-8') ?></option><?php endforeach; ?>
+                         </select><small id="aou_oid"></small></div>
+                     <div class="mb-2"><label class="form-label">User Email <span class="text-danger">*</span></label><input type="email" class="form-control" name="user_email" required data-validation="required,email" data-error="#aou_em"><small id="aou_em"></small></div>
+                     <div class="mb-1"><label class="form-label">Order ID</label><input type="number" class="form-control" name="order_id" data-validation="number" data-error="#aou_ord"><small id="aou_ord"></small></div>
                 </div>
                 <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-success">Create</button></div>
             </form>

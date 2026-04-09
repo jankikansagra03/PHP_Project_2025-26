@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include_once 'db_config.php';
 
 $admin_email = mysqli_real_escape_string($con, $_SESSION['admin'] ?? '');
@@ -107,54 +107,6 @@ $admin_page_title = 'Dashboard';
 ob_start();
 ?>
 
-<style>
-    .metric-chip {
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.9);
-        padding: 0.9rem 1rem;
-        border: 1px solid rgba(102, 126, 234, 0.08);
-    }
-
-    .metric-chip .label {
-        font-size: 0.78rem;
-        color: #8d8d8d;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-    }
-
-    .metric-chip .value {
-        font-size: 1.25rem;
-        font-weight: 800;
-        color: #2f2f2f;
-        line-height: 1.15;
-    }
-
-    .progress-thin {
-        height: 8px;
-        border-radius: 999px;
-        background: #eef1ff;
-    }
-
-    .insight-note {
-        background: rgba(102, 126, 234, 0.08);
-        border: 1px solid rgba(102, 126, 234, 0.15);
-        color: #4e57a0;
-        border-radius: 12px;
-        padding: 0.8rem 0.95rem;
-        font-size: 0.85rem;
-    }
-
-    .growth-up {
-        color: #27ae60;
-        font-weight: 700;
-    }
-
-    .growth-down {
-        color: #e74c3c;
-        font-weight: 700;
-    }
-</style>
-
 <div class="welcome-banner d-flex align-items-center justify-content-between flex-wrap gap-3">
     <div>
         <h4 class="fw-bold mb-1">Welcome back, <?= htmlspecialchars($admin_name, ENT_QUOTES, 'UTF-8') ?>!</h4>
@@ -166,7 +118,7 @@ ob_start();
 <div class="row g-3 mb-4">
     <div class="col-6 col-lg-3">
         <div class="stat-card d-flex align-items-center gap-3">
-            <div class="stat-icon" style="background:rgba(102,126,234,0.12);color:#667eea;">
+            <div class="stat-icon stat-icon-users">
                 <i class="fas fa-users"></i>
             </div>
             <div>
@@ -178,7 +130,7 @@ ob_start();
 
     <div class="col-6 col-lg-3">
         <div class="stat-card d-flex align-items-center gap-3">
-            <div class="stat-icon" style="background:rgba(240,147,251,0.12);color:#f093fb;">
+            <div class="stat-icon stat-icon-orders-admin">
                 <i class="fas fa-shopping-bag"></i>
             </div>
             <div>
@@ -190,7 +142,7 @@ ob_start();
 
     <div class="col-6 col-lg-3">
         <div class="stat-card d-flex align-items-center gap-3">
-            <div class="stat-icon" style="background:rgba(67,233,123,0.12);color:#27ae60;">
+            <div class="stat-icon stat-icon-revenue">
                 <i class="fas fa-indian-rupee-sign"></i>
             </div>
             <div>
@@ -202,7 +154,7 @@ ob_start();
 
     <div class="col-6 col-lg-3">
         <div class="stat-card d-flex align-items-center gap-3">
-            <div class="stat-icon" style="background:rgba(245,87,108,0.12);color:#f5576c;">
+            <div class="stat-icon stat-icon-products">
                 <i class="fas fa-box-open"></i>
             </div>
             <div>
@@ -217,7 +169,7 @@ ob_start();
     <div class="col-lg-8">
         <div class="data-card p-3 p-md-4">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                <h6 class="mb-0 fw-bold"><i class="fas fa-chart-column me-2" style="color:#667eea;"></i>Performance Snapshot</h6>
+                <h6 class="mb-0 fw-bold"><i class="fas fa-chart-column me-2 icon-primary"></i>Performance Snapshot</h6>
                 <span class="small text-muted">Last 30 days vs previous 30 days</span>
             </div>
 
@@ -260,7 +212,7 @@ ob_start();
 
     <div class="col-lg-4">
         <div class="data-card p-3 p-md-4 h-100">
-            <h6 class="mb-3 fw-bold"><i class="fas fa-heart-pulse me-2" style="color:#667eea;"></i>Order Health</h6>
+            <h6 class="mb-3 fw-bold"><i class="fas fa-heart-pulse me-2 icon-primary"></i>Order Health</h6>
 
             <div class="mb-3">
                 <div class="d-flex justify-content-between small mb-1">
@@ -288,7 +240,7 @@ ob_start();
                     <strong><?= number_format($pending_orders) ?></strong>
                 </div>
                 <div class="progress progress-thin">
-                    <div class="progress-bar" style="background:#667eea;width: <?= $total_orders > 0 ? max(0, min(100, ($pending_orders / $total_orders) * 100)) : 0 ?>%"></div>
+                    <div class="progress-bar progress-bar-primary" style="width: <?= $total_orders > 0 ? max(0, min(100, ($pending_orders / $total_orders) * 100)) : 0 ?>%"></div>
                 </div>
             </div>
 
@@ -304,9 +256,9 @@ ob_start();
     <div class="col-lg-6">
         <div class="data-card">
             <div class="data-card-header">
-                <h6><i class="fas fa-cubes me-2" style="color:#667eea;"></i>Top Selling Products</h6>
+                <h6><i class="fas fa-cubes me-2 icon-primary"></i>Top Selling Products</h6>
             </div>
-            <div style="overflow-x:auto;">
+            <div class="table-scroll-x">
                 <table class="admin-table">
                     <thead>
                         <tr>
@@ -338,9 +290,9 @@ ob_start();
     <div class="col-lg-6">
         <div class="data-card">
             <div class="data-card-header">
-                <h6><i class="fas fa-credit-card me-2" style="color:#667eea;"></i>Payment Status Mix</h6>
+                <h6><i class="fas fa-credit-card me-2 icon-primary"></i>Payment Status Mix</h6>
             </div>
-            <div style="overflow-x:auto;">
+            <div class="table-scroll-x">
                 <table class="admin-table">
                     <thead>
                         <tr>
@@ -378,10 +330,10 @@ ob_start();
     <div class="col-lg-7">
         <div class="data-card">
             <div class="data-card-header">
-                <h6><i class="fas fa-shopping-bag me-2" style="color:#667eea;"></i>Recent Orders</h6>
-                <a href="admin_orders.php" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size:0.78rem;">View All</a>
+                <h6><i class="fas fa-shopping-bag me-2 icon-primary"></i>Recent Orders</h6>
+                <a href="admin_orders.php" class="btn btn-sm btn-outline-primary rounded-pill px-3 btn-xs-78">View All</a>
             </div>
-            <div style="overflow-x:auto;">
+            <div class="table-scroll-x">
                 <table class="admin-table">
                     <thead>
                         <tr>
@@ -425,10 +377,10 @@ ob_start();
     <div class="col-lg-5">
         <div class="data-card">
             <div class="data-card-header">
-                <h6><i class="fas fa-users me-2" style="color:#667eea;"></i>Recent Users</h6>
-                <a href="admin_users.php" class="btn btn-sm btn-outline-primary rounded-pill px-3" style="font-size:0.78rem;">View All</a>
+                <h6><i class="fas fa-users me-2 icon-primary"></i>Recent Users</h6>
+                <a href="admin_users.php" class="btn btn-sm btn-outline-primary rounded-pill px-3 btn-xs-78">View All</a>
             </div>
-            <div style="overflow-x:auto;">
+            <div class="table-scroll-x">
                 <table class="admin-table">
                     <thead>
                         <tr>
@@ -453,7 +405,7 @@ ob_start();
                                 <tr>
                                     <td><img src="images/profile_pictures/<?= htmlspecialchars($pic, ENT_QUOTES, 'UTF-8') ?>" alt="user" class="table-avatar"></td>
                                     <td class="fw-semibold"><?= htmlspecialchars($user['fullname'] ?? 'N/A', ENT_QUOTES, 'UTF-8') ?></td>
-                                    <td class="text-muted" style="font-size:0.8rem;"><?= htmlspecialchars($user['email'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
+                                    <td class="text-muted text-xs-80"><?= htmlspecialchars($user['email'] ?? '', ENT_QUOTES, 'UTF-8') ?></td>
                                     <td><span class="status-badge <?= $role_badge ?>"><?= ucfirst($role) ?></span></td>
                                 </tr>
                             <?php endwhile; ?>

@@ -1,136 +1,139 @@
 <?php
 $title = "FAQ - JK Store";
+include 'db_config.php';
+
+// Fetch FAQs grouped by category
+$faq_res = mysqli_query($con, "SELECT * FROM faq ORDER BY category ASC, display_order ASC");
+$faqs = [];
+if ($faq_res && mysqli_num_rows($faq_res) > 0) {
+    while ($row = mysqli_fetch_assoc($faq_res)) {
+        $faqs[$row['category']][] = $row;
+    }
+} else {
+    // Default if empty
+    $faqs['General'][] = ['id' => 1, 'question' => 'How can we help you?', 'answer' => 'Please contact our support for assistance.'];
+}
+
 ob_start();
 ?>
+<style>
+.custom-pills .nav-link {
+    color: var(--theme-primary) !important;
+    background-color: transparent;
+    border: 2px solid var(--theme-primary);
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.custom-pills .nav-link:hover {
+    background: var(--primary-gradient);
+    color: #fff !important;
+    border-color: transparent;
+    transform: translateY(-2px);
+}
+
+.custom-pills .nav-link.active {
+    background: var(--primary-gradient);
+    color: white !important;
+    box-shadow: 0 4px 15px color-mix(in srgb, var(--theme-primary) 45%, transparent);
+    border-color: transparent;
+}
+
+.custom-accordion .accordion-item {
+    border: 1px solid rgba(31, 122, 140, 0.2) !important;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+}
+
+.custom-accordion .accordion-button {
+    font-size: 1.05rem;
+    color: var(--theme-text);
+    background: transparent;
+    box-shadow: none !important;
+}
+
+.custom-accordion .accordion-button:not(.collapsed) {
+    color: var(--theme-primary);
+    background: transparent;
+    box-shadow: none;
+}
+
+.custom-accordion .accordion-body {
+    background-color: rgba(255, 255, 255, 0.5);
+    border-top: 1px solid rgba(31, 122, 140, 0.1);
+}
+</style>
 <div class="container fade-in-up">
     <div class="row justify-content-center">
         <div class="col-lg-10">
             <div class="card border-0 shadow-lg">
                 <div class="card-body p-5">
-                    <h1 class="fw-bold mb-4 text-center" style="color: #667eea;">Frequently Asked Questions</h1>
+                    <h1 class="fw-bold mb-4 text-center heading-primary">Frequently Asked Questions</h1>
                     <p class="text-center text-muted mb-5">Have questions? We're here to help.</p>
 
-                    <div class="accordion" id="faqAccordion">
+                    <!-- FAQ Tabs -->
+                    <ul class="nav nav-pills custom-pills justify-content-center mb-5" id="faqTabs" role="tablist">
+                        <?php
+                        $isFirst = true;
+                        foreach (array_keys($faqs) as $cat):
+                            $tabId = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $cat));
+                        ?>
+                        <li class="nav-item m-1" role="presentation">
+                            <button
+                                class="nav-link fw-semibold rounded-pill px-4 py-2 shadow-sm <?php echo $isFirst ? 'active' : ''; ?>"
+                                id="<?php echo $tabId; ?>-tab" data-bs-toggle="pill"
+                                data-bs-target="#<?php echo $tabId; ?>" type="button" role="tab"
+                                aria-controls="<?php echo $tabId; ?>"
+                                aria-selected="<?php echo $isFirst ? 'true' : 'false'; ?>">
+                                <?php echo htmlspecialchars($cat); ?>
+                            </button>
+                        </li>
+                        <?php $isFirst = false;
+                        endforeach; ?>
+                    </ul>
 
-                        <!-- Section: Orders & Shipping -->
-                        <h4 class="fw-bold text-dark mt-4 mb-3"><i class="fas fa-shipping-fast me-2" style="color: #667eea;"></i>Orders & Shipping</h4>
-
-                        <div class="accordion-item border-0 mb-3 rounded shadow-sm overflow-hidden">
-                            <h2 class="accordion-header" id="headingOrder1">
-                                <button class="accordion-button fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrder1" aria-expanded="true" aria-controls="collapseOrder1">
-                                    How do I place an order?
-                                </button>
-                            </h2>
-                            <div id="collapseOrder1" class="accordion-collapse collapse show" aria-labelledby="headingOrder1" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body text-secondary">
-                                    Browse our products, select the items you like, and add them to your cart. Once you're ready, proceed to checkout, enter your shipping and payment details, and confirm your order. You will receive a confirmation email shortly after.
+                    <!-- FAQ Content -->
+                    <div class="tab-content" id="faqTabContent">
+                        <?php
+                        $isFirst = true;
+                        foreach ($faqs as $cat => $questions):
+                            $tabId = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $cat));
+                        ?>
+                        <div class="tab-pane fade <?php echo $isFirst ? 'show active' : ''; ?>"
+                            id="<?php echo $tabId; ?>" role="tabpanel" aria-labelledby="<?php echo $tabId; ?>-tab">
+                            <div class="accordion accordion-flush custom-accordion"
+                                id="accordion-<?php echo $tabId; ?>">
+                                <?php foreach ($questions as $index => $q):
+                                        $colId = 'collapse-' . $tabId . '-' . $index;
+                                        $headId = 'heading-' . $tabId . '-' . $index;
+                                    ?>
+                                <div class="accordion-item mb-3 rounded-4 overflow-hidden">
+                                    <h2 class="accordion-header" id="<?php echo $headId; ?>">
+                                        <button class="accordion-button collapsed fw-bold px-4 py-3" type="button"
+                                            data-bs-toggle="collapse" data-bs-target="#<?php echo $colId; ?>"
+                                            aria-expanded="false" aria-controls="<?php echo $colId; ?>">
+                                            <?php echo htmlspecialchars($q['question']); ?>
+                                        </button>
+                                    </h2>
+                                    <div id="<?php echo $colId; ?>" class="accordion-collapse collapse"
+                                        aria-labelledby="<?php echo $headId; ?>"
+                                        data-bs-parent="#accordion-<?php echo $tabId; ?>">
+                                        <div class="accordion-body px-4 py-3 text-secondary">
+                                            <?php echo nl2br(htmlspecialchars($q['answer'])); ?>
+                                        </div>
+                                    </div>
                                 </div>
+                                <?php endforeach; ?>
                             </div>
                         </div>
-
-                        <div class="accordion-item border-0 mb-3 rounded shadow-sm overflow-hidden">
-                            <h2 class="accordion-header" id="headingOrder2">
-                                <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrder2" aria-expanded="false" aria-controls="collapseOrder2">
-                                    How can I track my order?
-                                </button>
-                            </h2>
-                            <div id="collapseOrder2" class="accordion-collapse collapse" aria-labelledby="headingOrder2" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body text-secondary">
-                                    Once your order has shipped, you will receive an email with a tracking number and a link to track your package. You can also view your order status in your account dashboard.
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item border-0 mb-3 rounded shadow-sm overflow-hidden">
-                            <h2 class="accordion-header" id="headingOrder3">
-                                <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrder3" aria-expanded="false" aria-controls="collapseOrder3">
-                                    What are your shipping rates and delivery times?
-                                </button>
-                            </h2>
-                            <div id="collapseOrder3" class="accordion-collapse collapse" aria-labelledby="headingOrder3" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body text-secondary">
-                                    Shipping rates vary based on your location and the shipping method selected. Standard shipping typically takes 3-5 business days, while expedited options are available at checkout.
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <!-- Section: Returns & Refunds -->
-                        <h4 class="fw-bold text-dark mt-5 mb-3"><i class="fas fa-undo me-2" style="color: #667eea;"></i>Returns & Refunds</h4>
-
-                        <div class="accordion-item border-0 mb-3 rounded shadow-sm overflow-hidden">
-                            <h2 class="accordion-header" id="headingReturn1">
-                                <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReturn1" aria-expanded="false" aria-controls="collapseReturn1">
-                                    What is your return policy?
-                                </button>
-                            </h2>
-                            <div id="collapseReturn1" class="accordion-collapse collapse" aria-labelledby="headingReturn1" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body text-secondary">
-                                    We offer a 30-day return policy for unused and undamaged items in their original packaging. Please visit our Returns center to initiate a return.
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item border-0 mb-3 rounded shadow-sm overflow-hidden">
-                            <h2 class="accordion-header" id="headingReturn2">
-                                <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseReturn2" aria-expanded="false" aria-controls="collapseReturn2">
-                                    When will I receive my refund?
-                                </button>
-                            </h2>
-                            <div id="collapseReturn2" class="accordion-collapse collapse" aria-labelledby="headingReturn2" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body text-secondary">
-                                    Once we receive and inspect your returned item, we will process your refund within 5-7 business days. The refund will be issued to your original payment method.
-                                </div>
-                            </div>
-                        </div>
-
-
-                        <!-- Section: Account & Payments -->
-                        <h4 class="fw-bold text-dark mt-5 mb-3"><i class="fas fa-user-shield me-2" style="color: #667eea;"></i>Account & Payments</h4>
-
-                        <div class="accordion-item border-0 mb-3 rounded shadow-sm overflow-hidden">
-                            <h2 class="accordion-header" id="headingAccount1">
-                                <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAccount1" aria-expanded="false" aria-controls="collapseAccount1">
-                                    What payment methods do you accept?
-                                </button>
-                            </h2>
-                            <div id="collapseAccount1" class="accordion-collapse collapse" aria-labelledby="headingAccount1" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body text-secondary">
-                                    We accept all major credit cards (Visa, MasterCard, American Express), PayPal, and Apple Pay. Ensure your billing information matches your payment method.
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item border-0 mb-3 rounded shadow-sm overflow-hidden">
-                            <h2 class="accordion-header" id="headingAccount2">
-                                <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAccount2" aria-expanded="false" aria-controls="collapseAccount2">
-                                    Is my personal information secure?
-                                </button>
-                            </h2>
-                            <div id="collapseAccount2" class="accordion-collapse collapse" aria-labelledby="headingAccount2" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body text-secondary">
-                                    Yes, we use industry-standard encryption to protect your personal and payment information. Your data is never shared with third parties without your consent. See our <a href="privacy_policy.php">Privacy Policy</a> for more details.
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="accordion-item border-0 mb-3 rounded shadow-sm overflow-hidden">
-                            <h2 class="accordion-header" id="headingAccount3">
-                                <button class="accordion-button collapsed fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAccount3" aria-expanded="false" aria-controls="collapseAccount3">
-                                    I forgot my password, what should I do?
-                                </button>
-                            </h2>
-                            <div id="collapseAccount3" class="accordion-collapse collapse" aria-labelledby="headingAccount3" data-bs-parent="#faqAccordion">
-                                <div class="accordion-body text-secondary">
-                                    Go to the Login page and click on the "Forgot Password?" link. Enter your registered email address, and we will send you a link to reset your password.
-                                </div>
-                            </div>
-                        </div>
-
+                        <?php $isFirst = false;
+                        endforeach; ?>
                     </div>
 
                     <div class="text-center mt-5">
-                        <p class="text-muted">Still have questions? <a href="contact.php" class="text-decoration-none fw-semibold" style="color: #667eea;">Contact Us</a></p>
+                        <p class="text-muted">Still have questions? <a href="contact.php"
+                                class="text-decoration-none fw-semibold heading-primary">Contact Us</a></p>
                     </div>
 
                 </div>

@@ -87,6 +87,22 @@ $totalPages = max(1, (int) ceil($total / $perPage));
 if ($page > $totalPages) $page = $totalPages;
 $offset = ($page - 1) * $perPage;
 
+$orderOptions = [];
+$ordersRes = mysqli_query($con, 'SELECT id, order_number FROM orders ORDER BY id DESC');
+if ($ordersRes) {
+    while ($o = mysqli_fetch_assoc($ordersRes)) {
+        $orderOptions[] = $o;
+    }
+}
+
+$productOptions = [];
+$productsRes = mysqli_query($con, 'SELECT id, name FROM products ORDER BY name ASC');
+if ($productsRes) {
+    while ($p = mysqli_fetch_assoc($productsRes)) {
+        $productOptions[] = $p;
+    }
+}
+
 $listSql = 'SELECT oi.*, o.order_number FROM order_items oi LEFT JOIN orders o ON o.id = oi.order_id' . $where . ' ORDER BY oi.id DESC LIMIT ?, ?';
 $listStmt = mysqli_prepare($con, $listSql);
 if ($search !== '') mysqli_stmt_bind_param($listStmt, 'sssii', $like, $like, $like, $offset, $perPage);
@@ -149,8 +165,12 @@ ob_start();
                                         <h5 class="modal-title">Edit Order Item</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
                                     <div class="modal-body modal-body-scroll"><input type="hidden" name="action" value="update"><input type="hidden" name="id" value="<?= (int) $row['id'] ?>"><input type="hidden" name="return_search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="return_page" value="<?= (int) $page ?>">
-                                        <div class="mb-2"><label class="form-label">Order ID</label><input type="number" class="form-control" name="order_id" value="<?= (int) ($row['order_id'] ?? 0) ?>" required></div>
-                                        <div class="mb-2"><label class="form-label">Product ID</label><input type="number" class="form-control" name="product_id" value="<?= (int) ($row['product_id'] ?? 0) ?>" required></div>
+                                        <div class="mb-2"><label class="form-label">Order <span class="text-danger">*</span></label><select class="form-select" name="order_id" required data-validation="required,select" data-error="#eoi_oid_<?= (int) $row['id'] ?>">
+                                                <option value="">Select order</option><?php foreach ($orderOptions as $oo): ?><option value="<?= (int) $oo['id'] ?>" <?= (int) ($row['order_id'] ?? 0) === (int) $oo['id'] ? 'selected' : '' ?>>#<?= (int) $oo['id'] ?> <?= htmlspecialchars((string) ($oo['order_number'] ?? ''), ENT_QUOTES, 'UTF-8') ?></option><?php endforeach; ?>
+                                            </select><small id="eoi_oid_<?= (int) $row['id'] ?>"></small></div>
+                                        <div class="mb-2"><label class="form-label">Product <span class="text-danger">*</span></label><select class="form-select" name="product_id" required data-validation="required,select" data-error="#eoi_pid_<?= (int) $row['id'] ?>">
+                                                <option value="">Select product</option><?php foreach ($productOptions as $po): ?><option value="<?= (int) $po['id'] ?>" <?= (int) ($row['product_id'] ?? 0) === (int) $po['id'] ? 'selected' : '' ?>>#<?= (int) $po['id'] ?> <?= htmlspecialchars((string) ($po['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></option><?php endforeach; ?>
+                                            </select><small id="eoi_pid_<?= (int) $row['id'] ?>"></small></div>
                                         <div class="mb-2"><label class="form-label">Product Name</label><input type="text" class="form-control" name="product_name" value="<?= htmlspecialchars((string) ($row['product_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required></div>
                                         <div class="mb-2"><label class="form-label">Product Image</label><input type="text" class="form-control" name="product_image" value="<?= htmlspecialchars((string) ($row['product_image'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"></div>
                                         <div class="row g-2">
@@ -204,8 +224,12 @@ ob_start();
                     <h5 class="modal-title">Add Order Item</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body modal-body-scroll"><input type="hidden" name="action" value="create"><input type="hidden" name="return_search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="return_page" value="<?= (int) $page ?>">
-                    <div class="mb-2"><label class="form-label">Order ID</label><input type="number" class="form-control" name="order_id" required></div>
-                    <div class="mb-2"><label class="form-label">Product ID</label><input type="number" class="form-control" name="product_id" required></div>
+                    <div class="mb-2"><label class="form-label">Order <span class="text-danger">*</span></label><select class="form-select" name="order_id" required data-validation="required,select" data-error="#aoi_oid">
+                            <option value="">Select order</option><?php foreach ($orderOptions as $oo): ?><option value="<?= (int) $oo['id'] ?>">#<?= (int) $oo['id'] ?> <?= htmlspecialchars((string) ($oo['order_number'] ?? ''), ENT_QUOTES, 'UTF-8') ?></option><?php endforeach; ?>
+                        </select><small id="aoi_oid"></small></div>
+                    <div class="mb-2"><label class="form-label">Product <span class="text-danger">*</span></label><select class="form-select" name="product_id" required data-validation="required,select" data-error="#aoi_pid">
+                            <option value="">Select product</option><?php foreach ($productOptions as $po): ?><option value="<?= (int) $po['id'] ?>">#<?= (int) $po['id'] ?> <?= htmlspecialchars((string) ($po['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></option><?php endforeach; ?>
+                        </select><small id="aoi_pid"></small></div>
                     <div class="mb-2"><label class="form-label">Product Name</label><input type="text" class="form-control" name="product_name" required></div>
                     <div class="mb-2"><label class="form-label">Product Image</label><input type="text" class="form-control" name="product_image"></div>
                     <div class="row g-2">

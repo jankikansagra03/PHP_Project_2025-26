@@ -69,7 +69,7 @@ ob_start();
             <div class="card border-0 shadow-lg">
                 <div class="card-body p-5">
                     <div class="text-center mb-4">
-                        <h2 class="fw-bold" style="color: #667eea;">
+                        <h2 class="fw-bold heading-primary">
                             Verify OTP
                         </h2>
                         <p class="text-muted">Enter the 6-digit code sent to your email.</p>
@@ -99,7 +99,7 @@ ob_start();
 </div>
 
 <script>
-    const otpInput = document.getElementById('otp_input');      
+    const otpInput = document.getElementById('otp_input');
     const timerDisplay = document.getElementById('timer');
     const resendButton = document.getElementById('resend_otp');
 

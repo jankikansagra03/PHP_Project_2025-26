@@ -29,92 +29,51 @@ if (!isset($active_sidebar)) {
 }
 ob_start();
 ?>
-<style>
-    .dashboard-shell {
-        margin-top: 0.5rem;
-    }
-
-    .sidebar-link {
-        border-radius: 10px;
-        margin-bottom: 5px;
-        transition: all 0.3s ease;
-        padding: 12px 20px;
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        color: #555;
-        font-weight: 500;
-    }
-
-    .sidebar-link:hover,
-    .sidebar-link.active {
-        background: rgba(102, 126, 234, 0.1);
-        color: #667eea;
-        transform: translateX(5px);
-    }
-
-    .sidebar-link.active {
-        background: var(--primary-gradient);
-        color: white;
-    }
-
-    .sidebar-link i {
-        width: 25px;
-    }
-
-    .sidebar-user-avatar {
-        width: 100px;
-        height: 100px;
-        object-fit: cover;
-        border: 3px solid #fff;
-    }
-
-    @media (max-width: 991.98px) {
-        .dashboard-shell {
-            margin-top: 0;
-        }
-
-        .sidebar-link {
-            padding: 10px 14px;
-        }
-    }
-</style>
-
-<div class="container fade-in-up dashboard-shell">
-    <div class="row g-4">
+<div class="fade-in-up dashboard-shell">
+    <div class="row">
         <!-- Sidebar -->
         <div class="col-lg-3">
             <div class="card h-100 border-0 shadow-sm">
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
                         <div class="position-relative d-inline-block mb-3">
-                            <img src="images/profile_pictures/<?= htmlspecialchars($sidebar_picture, ENT_QUOTES, 'UTF-8') ?>" alt="Profile" class="rounded-circle shadow-sm sidebar-user-avatar">
-                            <span class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle p-2"></span>
+                            <img src="images/profile_pictures/<?= htmlspecialchars($sidebar_picture, ENT_QUOTES, 'UTF-8') ?>"
+                                alt="Profile" class="rounded-circle shadow-sm sidebar-user-avatar">
+                            <span
+                                class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle p-2"></span>
                         </div>
                         <h5 class="fw-bold mb-1"><?= htmlspecialchars($sidebar_name, ENT_QUOTES, 'UTF-8') ?></h5>
-                        <p class="text-muted small mb-0"><?= htmlspecialchars($sidebar_email, ENT_QUOTES, 'UTF-8') ?></p>
+                        <p class="text-muted small mb-0"><?= htmlspecialchars($sidebar_email, ENT_QUOTES, 'UTF-8') ?>
+                        </p>
                     </div>
 
                     <nav class="nav flex-column">
-                        <a href="dashboard.php" class="sidebar-link <?php echo ($active_sidebar == 'dashboard') ? 'active' : ''; ?>">
+                        <a href="dashboard.php"
+                            class="sidebar-link <?php echo ($active_sidebar == 'dashboard') ? 'active' : ''; ?>">
                             <i class="fas fa-th-large"></i> Dashboard
                         </a>
-                        <a href="profile.php" class="sidebar-link <?php echo ($active_sidebar == 'profile') ? 'active' : ''; ?>">
+                        <a href="profile.php"
+                            class="sidebar-link <?php echo ($active_sidebar == 'profile') ? 'active' : ''; ?>">
                             <i class="fas fa-user"></i> My Profile
                         </a>
-                        <a href="my_orders.php" class="sidebar-link <?php echo ($active_sidebar == 'orders') ? 'active' : ''; ?>">
+                        <a href="my_orders.php"
+                            class="sidebar-link <?php echo ($active_sidebar == 'orders') ? 'active' : ''; ?>">
                             <i class="fas fa-box"></i> My Orders
                         </a>
-                        <a href="cart.php" class="sidebar-link <?php echo ($active_sidebar == 'cart') ? 'active' : ''; ?>">
+                        <a href="cart.php"
+                            class="sidebar-link <?php echo ($active_sidebar == 'cart') ? 'active' : ''; ?>">
                             <i class="fas fa-shopping-cart"></i> Cart
                         </a>
-                        <a href="wishlist.php" class="sidebar-link <?php echo ($active_sidebar == 'wishlist') ? 'active' : ''; ?>">
+                        <a href="wishlist.php"
+                            class="sidebar-link <?php echo ($active_sidebar == 'wishlist') ? 'active' : ''; ?>">
                             <i class="fas fa-heart"></i> Wishlist
                         </a>
-                        <a href="saved_addresses.php" class="sidebar-link <?php echo ($active_sidebar == 'addresses') ? 'active' : ''; ?>">
+                        <a href="saved_addresses.php"
+                            class="sidebar-link <?php echo ($active_sidebar == 'addresses') ? 'active' : ''; ?>">
                             <i class="fas fa-map-marker-alt"></i> Addresses
                         </a>
-                        <a href="change_password.php" class="sidebar-link <?php echo ($active_sidebar == 'password') ? 'active' : ''; ?>">
+                        <a href="change_password.php"
+                            class="sidebar-link <?php echo ($active_sidebar == 'password') ? 'active' : ''; ?>">
                             <i class="fas fa-lock"></i> Change Password
                         </a>
                         <a href="logout.php" class="sidebar-link text-danger mt-3">

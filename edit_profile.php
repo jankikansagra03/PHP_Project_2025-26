@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include_once 'db_config.php';
 $user_email = $_SESSION['user'];
 
@@ -27,17 +27,10 @@ $title = "Edit Profile - JK Store";
 $active_sidebar = 'profile';
 ob_start();
 ?>
-<style>
-    .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
-    }
-</style>
-
 <div class="card border-0 shadow-lg mb-4">
     <div class="card-body p-5">
         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-            <h2 class="fw-bold mb-0" style="color: #667eea;">Edit Profile Information</h2>
+            <h2 class="fw-bold mb-0 heading-primary">Edit Profile Information</h2>
             <a href="profile.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3"><i
                     class="fas fa-arrow-left me-2"></i>Back</a>
         </div>
@@ -55,7 +48,7 @@ ob_start();
                 <div class="col-md-6">
                     <label for="email" class="form-label fw-semibold">Email Address</label>
                     <input type="email" class="form-control" id="email" name="email" value="<?= $user_data['email'] ?>"
-                        readonly disabled style="opacity: 0.7;">
+                        readonly disabled class="readonly-dim">
                     <small class="text-muted">Email cannot be changed</small>
                 </div>
                 <div class="col-md-6">

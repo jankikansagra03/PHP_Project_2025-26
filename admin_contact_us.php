@@ -7,6 +7,63 @@ if (isset($_POST['action'])) {
     $returnPage = max(1, (int) ($_POST['return_page'] ?? 1));
     $redirectUrl = 'admin_contact_us.php?page=' . $returnPage . ($returnSearch !== '' ? '&search=' . urlencode($returnSearch) : '');
 
+    if ($action === 'create') {
+        $name = trim($_POST['name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $subject = trim($_POST['subject'] ?? '');
+        $message = trim($_POST['message'] ?? '');
+        $reply = trim($_POST['reply'] ?? '');
+        $status = trim($_POST['status'] ?? 'Pending');
+        $replyDate = trim($_POST['reply_date'] ?? '');
+        $submittedAt = trim($_POST['submitted_at'] ?? '');
+
+        if ($name === '' || $email === '' || $subject === '' || $message === '') {
+            setcookie('error', 'Please fill all required fields.', time() + 5, '/');
+            header('Location: ' . $redirectUrl);
+            exit();
+        }
+
+        $replyDate = $replyDate !== '' ? $replyDate : null;
+        $submittedAt = $submittedAt !== '' ? $submittedAt : null;
+
+        $stmt = mysqli_prepare($con, 'INSERT INTO contact_us (name, email, subject, message, reply, status, reply_date, submitted_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
+        mysqli_stmt_bind_param($stmt, 'ssssssss', $name, $email, $subject, $message, $reply, $status, $replyDate, $submittedAt);
+        if (mysqli_stmt_execute($stmt)) setcookie('success', 'Message created successfully.', time() + 5, '/');
+        else setcookie('error', 'Failed to create message.', time() + 5, '/');
+        mysqli_stmt_close($stmt);
+        header('Location: ' . $redirectUrl);
+        exit();
+    }
+
+    if ($action === 'update') {
+        $id = (int) ($_POST['id'] ?? 0);
+        $name = trim($_POST['name'] ?? '');
+        $email = trim($_POST['email'] ?? '');
+        $subject = trim($_POST['subject'] ?? '');
+        $message = trim($_POST['message'] ?? '');
+        $reply = trim($_POST['reply'] ?? '');
+        $status = trim($_POST['status'] ?? 'Pending');
+        $replyDate = trim($_POST['reply_date'] ?? '');
+        $submittedAt = trim($_POST['submitted_at'] ?? '');
+
+        if ($id <= 0 || $name === '' || $email === '' || $subject === '' || $message === '') {
+            setcookie('error', 'Invalid update request.', time() + 5, '/');
+            header('Location: ' . $redirectUrl);
+            exit();
+        }
+
+        $replyDate = $replyDate !== '' ? $replyDate : null;
+        $submittedAt = $submittedAt !== '' ? $submittedAt : null;
+
+        $stmt = mysqli_prepare($con, 'UPDATE contact_us SET name=?, email=?, subject=?, message=?, reply=?, status=?, reply_date=?, submitted_at=? WHERE id=?');
+        mysqli_stmt_bind_param($stmt, 'ssssssssi', $name, $email, $subject, $message, $reply, $status, $replyDate, $submittedAt, $id);
+        if (mysqli_stmt_execute($stmt)) setcookie('success', 'Message updated successfully.', time() + 5, '/');
+        else setcookie('error', 'Failed to update message.', time() + 5, '/');
+        mysqli_stmt_close($stmt);
+        header('Location: ' . $redirectUrl);
+        exit();
+    }
+
     if ($action === 'reply') {
         $id = (int) ($_POST['id'] ?? 0);
         $reply = trim($_POST['reply'] ?? '');
@@ -63,7 +120,7 @@ ob_start();
 <div class="page-card">
     <div class="products-header d-flex flex-wrap align-items-center justify-content-between gap-2">
         <h5 class="mb-0 fw-bold">Contact Messages</h5>
-        <span class="badge text-bg-primary fs-6"><?= (int) $total ?> total messages</span>
+        <div class="d-flex gap-2 align-items-center"><span class="badge text-bg-primary fs-6"><?= (int) $total ?> total messages</span><button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addContactModal"><i class="fas fa-plus me-1"></i>Add Message</button></div>
     </div>
     <div class="products-body">
         <form method="get" class="mb-3" novalidate>
@@ -101,7 +158,7 @@ ob_start();
                                 <td>
                                     <div class="products-actions d-flex gap-1">
                                         <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#viewContactModal<?= (int) $row['id'] ?>" title="View" aria-label="View"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#replyContactModal<?= (int) $row['id'] ?>" title="Reply" aria-label="Reply"><i class="fas fa-reply"></i></button>
+                                        <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editContactModal<?= (int) $row['id'] ?>" title="Edit" aria-label="Edit"><i class="fas fa-pen"></i></button>
                                         <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteContactModal<?= (int) $row['id'] ?>" title="Delete" aria-label="Delete"><i class="fas fa-trash"></i></button>
                                     </div>
                                 </td>
@@ -125,19 +182,27 @@ ob_start();
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal fade" id="replyContactModal<?= (int) $row['id'] ?>" tabindex="-1" aria-hidden="true">
+                            <div class="modal fade" id="editContactModal<?= (int) $row['id'] ?>" tabindex="-1" aria-hidden="true">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <form method="post" novalidate>
                                             <div class="modal-header">
-                                                <h5 class="modal-title">Reply / Update Status</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                <h5 class="modal-title">Edit Message</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
-                                            <div class="modal-body"><input type="hidden" name="action" value="reply"><input type="hidden" name="id" value="<?= (int) $row['id'] ?>"><input type="hidden" name="return_search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="return_page" value="<?= (int) $page ?>">
+                                            <div class="modal-body modal-body-scroll"><input type="hidden" name="action" value="update"><input type="hidden" name="id" value="<?= (int) $row['id'] ?>"><input type="hidden" name="return_search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="return_page" value="<?= (int) $page ?>">
+                                                <div class="mb-2"><label class="form-label">Name <span class="text-danger">*</span></label><input type="text" class="form-control" name="name" value="<?= htmlspecialchars((string) ($row['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required data-validation="required,min,max" data-min="2" data-max="100" data-error="#cu_name_<?= (int) $row['id'] ?>"><small id="cu_name_<?= (int) $row['id'] ?>"></small></div>
+                                                <div class="mb-2"><label class="form-label">Email <span class="text-danger">*</span></label><input type="email" class="form-control" name="email" value="<?= htmlspecialchars((string) ($row['email'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required data-validation="required,email" data-error="#cu_email_<?= (int) $row['id'] ?>"><small id="cu_email_<?= (int) $row['id'] ?>"></small></div>
+                                                <div class="mb-2"><label class="form-label">Subject <span class="text-danger">*</span></label><input type="text" class="form-control" name="subject" value="<?= htmlspecialchars((string) ($row['subject'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required data-validation="required,min,max" data-min="3" data-max="150" data-error="#cu_sub_<?= (int) $row['id'] ?>"><small id="cu_sub_<?= (int) $row['id'] ?>"></small></div>
+                                                <div class="mb-2"><label class="form-label">Message <span class="text-danger">*</span></label><textarea class="form-control" name="message" rows="3" required data-validation="required,min" data-min="5" data-error="#cu_msg_<?= (int) $row['id'] ?>"><?= htmlspecialchars((string) ($row['message'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea><small id="cu_msg_<?= (int) $row['id'] ?>"></small></div>
                                                 <div class="mb-2"><label class="form-label">Status</label><select class="form-select" name="status">
                                                         <option value="Pending" <?= strtolower($status) === 'pending' ? 'selected' : '' ?>>Pending</option>
                                                         <option value="Replied" <?= strtolower($status) === 'replied' ? 'selected' : '' ?>>Replied</option>
                                                     </select></div>
-                                                <div class="mb-1"><label class="form-label">Reply</label><textarea class="form-control" name="reply" rows="4"><?= htmlspecialchars((string) ($row['reply'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea></div>
+                                                <div class="mb-2"><label class="form-label">Reply</label><textarea class="form-control" name="reply" rows="3" data-validation="max" data-max="2000" data-error="#cu_reply_<?= (int) $row['id'] ?>"><?= htmlspecialchars((string) ($row['reply'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea><small id="cu_reply_<?= (int) $row['id'] ?>"></small></div>
+                                                <div class="row g-2">
+                                                    <div class="col-md-6"><label class="form-label">Reply Date</label><input type="datetime-local" class="form-control" name="reply_date" value="<?= !empty($row['reply_date']) ? date('Y-m-d\\TH:i', strtotime((string) $row['reply_date'])) : '' ?>"></div>
+                                                    <div class="col-md-6"><label class="form-label">Submitted At</label><input type="datetime-local" class="form-control" name="submitted_at" value="<?= !empty($row['submitted_at']) ? date('Y-m-d\\TH:i', strtotime((string) $row['submitted_at'])) : '' ?>"></div>
+                                                </div>
                                             </div>
                                             <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-primary">Save</button></div>
                                         </form>
@@ -175,6 +240,34 @@ ob_start();
                 <li class="products-pagination-item <?= $page <= 1 ? 'disabled' : '' ?>"><a class="products-pagination-link is-nav" href="?page=<?= $page - 1 ?><?= $search !== '' ? '&search=' . urlencode($search) : '' ?>"><i class="fas fa-chevron-left me-1 small"></i>Prev</a></li><?php for ($p = 1; $p <= $totalPages; $p++): ?><li class="products-pagination-item <?= $p === $page ? 'active' : '' ?>"><a class="products-pagination-link" href="?page=<?= $p ?><?= $search !== '' ? '&search=' . urlencode($search) : '' ?>"><?= $p ?></a></li><?php endfor; ?><li class="products-pagination-item <?= $page >= $totalPages ? 'disabled' : '' ?>"><a class="products-pagination-link is-nav" href="?page=<?= $page + 1 ?><?= $search !== '' ? '&search=' . urlencode($search) : '' ?>">Next<i class="fas fa-chevron-right ms-1 small"></i></a></li>
             </ul>
         </nav>
+    </div>
+</div>
+
+<div class="modal fade" id="addContactModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" novalidate>
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Contact Message</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body modal-body-scroll"><input type="hidden" name="action" value="create"><input type="hidden" name="return_search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="return_page" value="<?= (int) $page ?>">
+                    <div class="mb-2"><label class="form-label">Name <span class="text-danger">*</span></label><input type="text" class="form-control" name="name" required data-validation="required,min,max" data-min="2" data-max="100" data-error="#ca_name"><small id="ca_name"></small></div>
+                    <div class="mb-2"><label class="form-label">Email <span class="text-danger">*</span></label><input type="email" class="form-control" name="email" required data-validation="required,email" data-error="#ca_email"><small id="ca_email"></small></div>
+                    <div class="mb-2"><label class="form-label">Subject <span class="text-danger">*</span></label><input type="text" class="form-control" name="subject" required data-validation="required,min,max" data-min="3" data-max="150" data-error="#ca_sub"><small id="ca_sub"></small></div>
+                    <div class="mb-2"><label class="form-label">Message <span class="text-danger">*</span></label><textarea class="form-control" name="message" rows="3" required data-validation="required,min" data-min="5" data-error="#ca_msg"></textarea><small id="ca_msg"></small></div>
+                    <div class="mb-2"><label class="form-label">Status</label><select class="form-select" name="status">
+                            <option value="Pending">Pending</option>
+                            <option value="Replied">Replied</option>
+                        </select></div>
+                    <div class="mb-2"><label class="form-label">Reply</label><textarea class="form-control" name="reply" rows="2" data-validation="max" data-max="2000" data-error="#ca_reply"></textarea><small id="ca_reply"></small></div>
+                    <div class="row g-2">
+                        <div class="col-md-6"><label class="form-label">Reply Date</label><input type="datetime-local" class="form-control" name="reply_date"></div>
+                        <div class="col-md-6"><label class="form-label">Submitted At</label><input type="datetime-local" class="form-control" name="submitted_at"></div>
+                    </div>
+                </div>
+                <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn btn-success">Create</button></div>
+            </form>
+        </div>
     </div>
 </div>
 

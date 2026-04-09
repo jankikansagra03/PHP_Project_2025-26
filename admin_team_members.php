@@ -125,8 +125,8 @@ ob_start();
                                                 <h5 class="modal-title">Edit Team Member</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
                                             <div class="modal-body modal-body-scroll"><input type="hidden" name="action" value="update"><input type="hidden" name="id" value="<?= (int) $row['id'] ?>"><input type="hidden" name="return_search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="return_page" value="<?= (int) $page ?>">
-                                                <div class="mb-2"><label class="form-label">Name</label><input type="text" class="form-control" name="name" value="<?= htmlspecialchars((string) ($row['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required></div>
-                                                <div class="mb-2"><label class="form-label">Designation</label><input type="text" class="form-control" name="designation" value="<?= htmlspecialchars((string) ($row['designation'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required></div>
+                                                <div class="mb-2"><label class="form-label">Name <span class="text-danger">*</span></label><input type="text" class="form-control" name="name" value="<?= htmlspecialchars((string) ($row['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required data-validation="required,min,max" data-min="2" data-max="100" data-error="#et_name_<?= (int) $row['id'] ?>"><small id="et_name_<?= (int) $row['id'] ?>"></small></div>
+                                                <div class="mb-2"><label class="form-label">Designation <span class="text-danger">*</span></label><input type="text" class="form-control" name="designation" value="<?= htmlspecialchars((string) ($row['designation'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required data-validation="required,min,max" data-min="2" data-max="100" data-error="#et_des_<?= (int) $row['id'] ?>"><small id="et_des_<?= (int) $row['id'] ?>"></small></div>
                                                 <div class="mb-2"><label class="form-label">Photo URL</label><input type="text" class="form-control" name="photo" value="<?= htmlspecialchars((string) ($row['photo'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"></div>
                                                 <div class="mb-2"><label class="form-label">Bio</label><textarea class="form-control" name="bio" rows="3"><?= htmlspecialchars((string) ($row['bio'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea></div>
                                                 <div class="row g-2">
@@ -192,8 +192,8 @@ ob_start();
                     <h5 class="modal-title">Add Team Member</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body modal-body-scroll"><input type="hidden" name="action" value="create"><input type="hidden" name="return_search" value="<?= htmlspecialchars($search, ENT_QUOTES, 'UTF-8') ?>"><input type="hidden" name="return_page" value="<?= (int) $page ?>">
-                    <div class="mb-2"><label class="form-label">Name</label><input type="text" class="form-control" name="name" required></div>
-                    <div class="mb-2"><label class="form-label">Designation</label><input type="text" class="form-control" name="designation" required></div>
+                    <div class="mb-2"><label class="form-label">Name <span class="text-danger">*</span></label><input type="text" class="form-control" name="name" required data-validation="required,min,max" data-min="2" data-max="100" data-error="#at_name"><small id="at_name"></small></div>
+                    <div class="mb-2"><label class="form-label">Designation <span class="text-danger">*</span></label><input type="text" class="form-control" name="designation" required data-validation="required,min,max" data-min="2" data-max="100" data-error="#at_des"><small id="at_des"></small></div>
                     <div class="mb-2"><label class="form-label">Photo URL</label><input type="text" class="form-control" name="photo" value="images/team/default.jpg"></div>
                     <div class="mb-2"><label class="form-label">Bio</label><textarea class="form-control" name="bio" rows="3"></textarea></div>
                     <div class="row g-2">

@@ -1,139 +1,175 @@
 <?php
-$title = "Saved Addresses - JK Store";
+$title          = "Saved Addresses - JK Store";
 $active_sidebar = 'addresses';
-$email = $_SESSION['user'];
+include_once 'user_authentication.php';
+$email     = $_SESSION['user'];
 include_once 'db_config.php';
-$q = "Select *  from addresses where email='$email'";
-$result = mysqli_query($con, $q);
-$count = mysqli_num_rows($result);
+$esc_email = mysqli_real_escape_string($con, $email);
+
+$addr_q    = mysqli_query($con, "SELECT * FROM addresses WHERE email='$esc_email' ORDER BY is_default DESC, id ASC");
+$addresses = [];
+while ($r = mysqli_fetch_assoc($addr_q)) $addresses[] = $r;
+
+$user_q    = mysqli_query($con, "SELECT fullname, mobile FROM registration WHERE email='$esc_email' LIMIT 1");
+$user_info = $user_q ? mysqli_fetch_assoc($user_q) : [];
+
 ob_start();
 ?>
-<style>
-    .address-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
 
-    .address-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-</style>
+<!-- Toast -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index:9999">
+    <div id="addrToast" class="toast align-items-center text-white border-0 shadow-lg rounded-3" role="alert" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body fw-semibold small" id="addrToastMsg"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
 
-<div class="card border-0 shadow-lg mb-4">
-    <div class="card-body p-5">
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-            <h2 class="fw-bold mb-0" style="color: #667eea;">Saved Addresses</h2>
-            <button class="btn btn-gradient btn-sm rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+            <div>
+                <h4 class="fw-bold mb-0 heading-primary">Saved Addresses</h4>
+                <p class="text-muted small mb-0 mt-1">Manage your delivery addresses</p>
+            </div>
+            <button class="btn btn-gradient rounded-pill px-4 shadow-sm"
+                    data-bs-toggle="modal" data-bs-target="#addAddressModal">
                 <i class="fas fa-plus me-2"></i>Add New Address
             </button>
         </div>
-        <?php
-        if ($count == 0) {
-        ?>
-            <div class="alert alert-info" role="alert">
-                You have no saved addresses yet.
-            </div>
-        <?php
-        } else {
-        ?>
-            <div class="row g-4">
-                <!-- Address 1 -->
-                <?php
-                while ($row = mysqli_fetch_assoc($result)) {
-                ?>
-                    <div class="col-md-6">
-                        <div class="card h-100 border shadow-sm address-card">
-                            <div class="card-body p-4 position-relative">
-                                <span class="badge bg-primary position-absolute top-0 end-0 m-3">Default</span>
-                                <div class="mb-3">
-                                    <h5 class="fw-bold mb-1"><i class="fas fa-home me-2 text-primary"></i>Home</h5>
-                                </div>
-                                <p class="mb-1 fw-semibold"><?= $row['name'] ?></p>
-                                <p class="text-muted mb-1 small"><?= $row['address'] ?></p>
-                                <p class="text-muted mb-1 small"><?= $row['city'] ?>, <?= $row['state'] ?> <?= $row['zip'] ?>, USA</p>
-                                <p class="text-muted mb-3 small"><i class="fas fa-phone me-2"></i><?= $row['phone'] ?></p>
 
-                                <div class="d-flex gap-2 mt-3">
-                                    <button class="btn btn-sm btn-outline-primary px-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#editAddressModal">
-                                        <i class="fas fa-edit me-1"></i>Edit
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger px-3 rounded-pill" data-bs-toggle="modal" data-bs-target="#deleteAddressModal">
-                                        <i class="fas fa-trash me-1"></i>Delete
-                                    </button>
-                                </div>
+        <?php if (empty($addresses)): ?>
+        <div style="text-align:center;padding:3rem 1rem;background:#f8fafc;border-radius:16px;border:2px dashed #e2e8f0;">
+            <div style="font-size:3.5rem;margin-bottom:1rem;">📍</div>
+            <h5 style="font-weight:700;color:#374151;">No saved addresses</h5>
+            <p style="color:#94a3b8;font-size:.9rem;">Add a delivery address to get started.</p>
+            <button class="btn btn-gradient rounded-pill px-4 mt-2"
+                    data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                <i class="fas fa-plus me-2"></i>Add First Address
+            </button>
+        </div>
+        <?php else: ?>
+        <div class="row g-4" id="addressGrid">
+            <?php
+            $iconMap  = ['home'=>'fa-home','office'=>'fa-building','other'=>'fa-map-marker-alt'];
+            $colorMap = ['home'=>'#3b82f6','office'=>'#10b981','other'=>'#f59e0b'];
+            $bgMap    = ['home'=>'#eff6ff','office'=>'#f0fdf4','other'=>'#fffbeb'];
+            foreach ($addresses as $row):
+                $lbl = strtolower($row['label'] ?? 'home');
+                $ico = $iconMap[$lbl] ?? 'fa-map-marker-alt';
+                $col = $colorMap[$lbl] ?? '#64748b';
+                $bg  = $bgMap[$lbl] ?? '#f8fafc';
+            ?>
+            <div class="col-md-6" id="addr-grid-<?= $row['id'] ?>">
+                <div class="card h-100 border-0 shadow-sm rounded-4 address-card-sa position-relative overflow-hidden"
+                     style="border:1.5px solid <?= !empty($row['is_default']) ? 'var(--theme-primary,#1f7a8c)' : '#e2e8f0' ?>!important;">
+
+                    <!-- Colored top bar -->
+                    <div style="height:4px;background:<?= $col ?>;"></div>
+
+                    <div class="card-body p-4">
+                        <!-- Label + Default badge -->
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <div style="width:40px;height:40px;border-radius:10px;background:<?= $bg ?>;display:flex;align-items:center;justify-content:center;">
+                                <i class="fas <?= $ico ?>" style="color:<?= $col ?>;font-size:1rem;"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0 text-capitalize"><?= htmlspecialchars($row['label'] ?? 'home') ?></h6>
+                                <?php if (!empty($row['is_default'])): ?>
+                                <span style="background:#dbeafe;color:#1d4ed8;font-size:.65rem;font-weight:700;padding:1px 8px;border-radius:20px;">DEFAULT</span>
+                                <?php endif; ?>
                             </div>
                         </div>
+
+                        <p class="fw-bold mb-1" style="color:#1e293b;"><?= htmlspecialchars($row['name']) ?></p>
+                        <p class="text-muted small mb-1"><?= htmlspecialchars($row['address']) ?></p>
+                        <p class="text-muted small mb-1"><?= htmlspecialchars($row['city'] ?? '') ?>, <?= htmlspecialchars($row['state'] ?? '') ?> <?= htmlspecialchars($row['zip'] ?? '') ?></p>
+                        <p class="text-muted small mb-3"><i class="fas fa-phone me-1" style="font-size:.7rem;"></i><?= htmlspecialchars($row['phone']) ?></p>
+
+                        <div class="d-flex gap-2 flex-wrap">
+                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3"
+                                    onclick="openEditModal(<?= htmlspecialchars(json_encode($row), ENT_QUOTES) ?>)">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </button>
+                            <?php if (empty($row['is_default'])): ?>
+                            <button class="btn btn-sm btn-outline-success rounded-pill px-3"
+                                    onclick="setDefault(<?= $row['id'] ?>)">
+                                <i class="fas fa-star me-1"></i>Set Default
+                            </button>
+                            <?php endif; ?>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                    onclick="confirmDelete(<?= $row['id'] ?>)">
+                                <i class="fas fa-trash me-1"></i>Delete
+                            </button>
+                        </div>
                     </div>
-
-                    <!-- Address 2 -->
-            <?php
-                }
-            }
-
-
-            ?>
+                </div>
             </div>
-
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
     </div>
 </div>
 
 <!-- Add Address Modal -->
 <div class="modal fade" id="addAddressModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold">Add New Address</h5>
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 px-4 pt-4 pb-0">
+                <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle me-2 text-primary"></i>Add New Address</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4">
-                <form action="add_address_action.php" method="POST">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="addressLabel" class="form-label fw-semibold">Address Label</label>
-                            <select class="form-select" id="addressLabel" name="addressLabel">
-                                <option value="home">Home</option>
-                                <option value="office">Office</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="fullName" class="form-label fw-semibold">Full Name</label>
-                            <input type="text" class="form-control" id="fullName" name="fullName" placeholder="Enter full name" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="phone" class="form-label fw-semibold">Phone Number</label>
-                            <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter phone number" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="zipCode" class="form-label fw-semibold">ZIP Code</label>
-                            <input type="text" class="form-control" id="zipCode" name="zipCode" placeholder="Enter ZIP code" required>
-                        </div>
-                        <div class="col-12">
-                            <label for="streetAddress" class="form-label fw-semibold">Street Address</label>
-                            <textarea class="form-control" id="streetAddress" name="streetAddress" rows="2" placeholder="Enter street address" required></textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="city" class="form-label fw-semibold">City</label>
-                            <input type="text" class="form-control" id="city" name="city" placeholder="Enter city" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="state" class="form-label fw-semibold">State</label>
-                            <input type="text" class="form-control" id="state" name="state" placeholder="Enter state" required>
-                        </div>
-                        <div class="col-12">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="setDefault" name="setDefault">
-                                <label class="form-check-label" for="setDefault">Set as default address</label>
-                            </div>
+            <div class="modal-body px-4 pb-4">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">Label</label>
+                        <select class="form-select" id="addLabel">
+                            <option value="home">🏠 Home</option>
+                            <option value="office">🏢 Office</option>
+                            <option value="other">📍 Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">Full Name *</label>
+                        <input type="text" class="form-control" id="addName"
+                               value="<?= htmlspecialchars($user_info['fullname'] ?? '', ENT_QUOTES) ?>" placeholder="Full name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">Phone *</label>
+                        <input type="tel" class="form-control" id="addPhone"
+                               value="<?= htmlspecialchars($user_info['mobile'] ?? '', ENT_QUOTES) ?>" placeholder="Phone number" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">ZIP / Pincode</label>
+                        <input type="text" class="form-control" id="addZip" placeholder="PIN code">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold small">Street Address *</label>
+                        <textarea class="form-control" id="addAddress" rows="2" placeholder="House no., Street, Area" required></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">City *</label>
+                        <input type="text" class="form-control" id="addCity" placeholder="City" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">State *</label>
+                        <input type="text" class="form-control" id="addState" placeholder="State" required>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="addIsDefault">
+                            <label class="form-check-label fw-semibold small" for="addIsDefault">Set as default address</label>
                         </div>
                     </div>
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-gradient py-3">
-                            <i class="fas fa-save me-2"></i>Save Address
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary py-3" data-bs-dismiss="modal">Cancel</button>
-                    </div>
-                </form>
+                </div>
+                <div id="addAddrMsg" class="mt-3" style="font-size:.82rem;"></div>
+                <div class="d-grid gap-2 mt-4">
+                    <button type="button" class="btn btn-gradient py-3 fw-bold" id="saveAddressBtn">
+                        <i class="fas fa-save me-2"></i>Save Address
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
@@ -142,77 +178,198 @@ ob_start();
 <!-- Edit Address Modal -->
 <div class="modal fade" id="editAddressModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold">Edit Address</h5>
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 px-4 pt-4 pb-0">
+                <h5 class="modal-title fw-bold"><i class="fas fa-edit me-2 text-primary"></i>Edit Address</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4">
-                <form action="edit_address_action.php" method="POST">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="editAddressLabel" class="form-label fw-semibold">Address Label</label>
-                            <select class="form-select" id="editAddressLabel" name="addressLabel">
-                                <option value="home" selected>Home</option>
-                                <option value="office">Office</option>
-                                <option value="other">Other</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="editFullName" class="form-label fw-semibold">Full Name</label>
-                            <input type="text" class="form-control" id="editFullName" name="fullName" value="John Doe" placeholder="Enter full name" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="editPhone" class="form-label fw-semibold">Phone Number</label>
-                            <input type="tel" class="form-control" id="editPhone" name="phone" value="+1 234 567 890" placeholder="Enter phone number" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="editZipCode" class="form-label fw-semibold">ZIP Code</label>
-                            <input type="text" class="form-control" id="editZipCode" name="zipCode" value="10001" placeholder="Enter ZIP code" required>
-                        </div>
-                        <div class="col-12">
-                            <label for="editStreetAddress" class="form-label fw-semibold">Street Address</label>
-                            <textarea class="form-control" id="editStreetAddress" name="streetAddress" rows="2" placeholder="Enter street address" required>123 Street Name, Apt 4B</textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="editCity" class="form-label fw-semibold">City</label>
-                            <input type="text" class="form-control" id="editCity" name="city" value="New York" placeholder="Enter city" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label for="editState" class="form-label fw-semibold">State</label>
-                            <input type="text" class="form-control" id="editState" name="state" value="NY" placeholder="Enter state" required>
+            <div class="modal-body px-4 pb-4">
+                <input type="hidden" id="editAddrId">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">Label</label>
+                        <select class="form-select" id="editLabel">
+                            <option value="home">🏠 Home</option>
+                            <option value="office">🏢 Office</option>
+                            <option value="other">📍 Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">Full Name *</label>
+                        <input type="text" class="form-control" id="editName" placeholder="Full name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">Phone *</label>
+                        <input type="tel" class="form-control" id="editPhone" placeholder="Phone number" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">ZIP / Pincode</label>
+                        <input type="text" class="form-control" id="editZip" placeholder="PIN code">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-semibold small">Street Address *</label>
+                        <textarea class="form-control" id="editAddress" rows="2" placeholder="House no., Street, Area" required></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">City *</label>
+                        <input type="text" class="form-control" id="editCity" placeholder="City" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold small">State *</label>
+                        <input type="text" class="form-control" id="editState" placeholder="State" required>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="editIsDefault">
+                            <label class="form-check-label fw-semibold small" for="editIsDefault">Set as default address</label>
                         </div>
                     </div>
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-gradient py-3">
-                            <i class="fas fa-save me-2"></i>Update Address
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary py-3" data-bs-dismiss="modal">Cancel</button>
-                    </div>
-                </form>
+                </div>
+                <div id="editAddrMsg" class="mt-3" style="font-size:.82rem;"></div>
+                <div class="d-grid gap-2 mt-4">
+                    <button type="button" class="btn btn-gradient py-3 fw-bold" id="updateAddressBtn">
+                        <i class="fas fa-save me-2"></i>Update Address
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Delete Address Modal -->
-<div class="modal fade" id="deleteAddressModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg">
-            <div class="modal-body p-5 text-center">
-                <div class="mb-4">
-                    <i class="fas fa-exclamation-triangle fa-4x text-danger"></i>
-                </div>
-                <h4 class="fw-bold mb-3">Delete Address?</h4>
-                <p class="text-muted mb-4">Are you sure you want to delete this address? This action cannot be undone.</p>
+<!-- Delete Confirm Modal -->
+<div class="modal fade" id="deleteAddrModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-body p-4 text-center">
+                <div style="font-size:3rem;margin-bottom:.75rem;">🗑️</div>
+                <h5 class="fw-bold mb-2">Delete Address?</h5>
+                <p class="text-muted small mb-4">This address will be permanently removed.</p>
+                <input type="hidden" id="deleteAddrId">
                 <div class="d-grid gap-2">
-                    <button type="button" class="btn btn-danger py-3">Yes, Delete Address</button>
-                    <button type="button" class="btn btn-outline-secondary py-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger rounded-pill fw-bold" id="confirmDeleteAddrBtn">Yes, Delete</button>
+                    <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function showAddrToast(msg, ok) {
+    var t = document.getElementById('addrToast');
+    t.classList.remove('bg-success','bg-danger');
+    t.classList.add(ok ? 'bg-success' : 'bg-danger');
+    document.getElementById('addrToastMsg').textContent = msg;
+    new bootstrap.Toast(t, {delay:3200}).show();
+}
+
+// ── Add Address ──────────────────────────────────────────
+document.getElementById('saveAddressBtn').addEventListener('click', function() {
+    var name=document.getElementById('addName').value.trim(),
+        phone=document.getElementById('addPhone').value.trim(),
+        address=document.getElementById('addAddress').value.trim(),
+        city=document.getElementById('addCity').value.trim(),
+        state=document.getElementById('addState').value.trim();
+    if (!name||!phone||!address||!city||!state) {
+        document.getElementById('addAddrMsg').innerHTML='<span class="text-danger">Please fill all required fields.</span>'; return;
+    }
+    this.disabled=true;
+    $.post('address_handler.php', {
+        action:'add', label:document.getElementById('addLabel').value,
+        name, phone, address, city, state,
+        zip:document.getElementById('addZip').value.trim(),
+        is_default:document.getElementById('addIsDefault').checked ? 1 : 0
+    }, function(data) {
+        document.getElementById('saveAddressBtn').disabled=false;
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('addAddressModal'))?.hide();
+            showAddrToast(data.message, true);
+            setTimeout(function(){ location.reload(); }, 700);
+        } else {
+            document.getElementById('addAddrMsg').innerHTML='<span class="text-danger">'+data.message+'</span>';
+        }
+    }, 'json').fail(function() {
+        document.getElementById('saveAddressBtn').disabled=false;
+        document.getElementById('addAddrMsg').innerHTML='<span class="text-danger">Error. Try again.</span>';
+    });
+});
+
+// ── Open Edit Modal ──────────────────────────────────────
+function openEditModal(row) {
+    document.getElementById('editAddrId').value    = row.id;
+    document.getElementById('editLabel').value     = row.label || 'home';
+    document.getElementById('editName').value      = row.name;
+    document.getElementById('editPhone').value     = row.phone;
+    document.getElementById('editAddress').value   = row.address;
+    document.getElementById('editCity').value      = row.city || '';
+    document.getElementById('editState').value     = row.state || '';
+    document.getElementById('editZip').value       = row.zip || '';
+    document.getElementById('editIsDefault').checked = row.is_default == 1;
+    document.getElementById('editAddrMsg').innerHTML = '';
+    new bootstrap.Modal(document.getElementById('editAddressModal')).show();
+}
+
+// ── Update Address ───────────────────────────────────────
+document.getElementById('updateAddressBtn').addEventListener('click', function() {
+    var id=document.getElementById('editAddrId').value,
+        name=document.getElementById('editName').value.trim(),
+        phone=document.getElementById('editPhone').value.trim(),
+        address=document.getElementById('editAddress').value.trim(),
+        city=document.getElementById('editCity').value.trim(),
+        state=document.getElementById('editState').value.trim();
+    if (!name||!phone||!address||!city||!state) {
+        document.getElementById('editAddrMsg').innerHTML='<span class="text-danger">Please fill all required fields.</span>'; return;
+    }
+    this.disabled=true;
+    $.post('address_handler.php', {
+        action:'edit', id,
+        label:document.getElementById('editLabel').value,
+        name, phone, address, city, state,
+        zip:document.getElementById('editZip').value.trim(),
+        is_default:document.getElementById('editIsDefault').checked ? 1 : 0
+    }, function(data) {
+        document.getElementById('updateAddressBtn').disabled=false;
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('editAddressModal'))?.hide();
+            showAddrToast(data.message, true);
+            setTimeout(function(){ location.reload(); }, 700);
+        } else {
+            document.getElementById('editAddrMsg').innerHTML='<span class="text-danger">'+data.message+'</span>';
+        }
+    }, 'json').fail(function() {
+        document.getElementById('updateAddressBtn').disabled=false;
+        document.getElementById('editAddrMsg').innerHTML='<span class="text-danger">Error. Try again.</span>';
+    });
+});
+
+// ── Delete ───────────────────────────────────────────────
+function confirmDelete(id) {
+    document.getElementById('deleteAddrId').value = id;
+    new bootstrap.Modal(document.getElementById('deleteAddrModal')).show();
+}
+document.getElementById('confirmDeleteAddrBtn').addEventListener('click', function() {
+    var id = document.getElementById('deleteAddrId').value;
+    this.disabled=true;
+    $.post('address_handler.php', {action:'delete', id}, function(data) {
+        bootstrap.Modal.getInstance(document.getElementById('deleteAddrModal'))?.hide();
+        document.getElementById('confirmDeleteAddrBtn').disabled=false;
+        if (data.success) {
+            showAddrToast(data.message, true);
+            document.getElementById('addr-grid-'+id)?.remove();
+            if (!document.querySelector('.address-card-sa')) location.reload();
+        } else showAddrToast(data.message, false);
+    }, 'json');
+});
+
+// ── Set Default ──────────────────────────────────────────
+function setDefault(id) {
+    $.post('address_handler.php', {action:'set_default', id}, function(data) {
+        if (data.success) { showAddrToast('Default address updated!', true); setTimeout(function(){ location.reload(); }, 700); }
+        else showAddrToast(data.message, false);
+    }, 'json');
+}
+</script>
 
 <?php
 $dashboard_content = ob_get_clean();

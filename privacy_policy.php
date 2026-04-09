@@ -1,5 +1,18 @@
 <?php
 $title = "Privacy Policy - JK Store";
+include 'db_config.php';
+
+$res = mysqli_query($con, "SELECT * FROM privacy_policy ORDER BY display_order ASC");
+$sections = [];
+if ($res && mysqli_num_rows($res) > 0) {
+    while($row = mysqli_fetch_assoc($res)) {
+        $sections[] = $row;
+    }
+} else {
+    // Fallback if table is empty
+    $sections[] = ['section_title' => 'Information We Collect', 'content' => '<p>We collect information you provide directly to us.</p>'];
+}
+
 ob_start();
 ?>
 <div class="container fade-in-up">
@@ -7,29 +20,16 @@ ob_start();
         <div class="col-lg-10">
             <div class="card border-0 shadow-lg">
                 <div class="card-body p-5">
-                    <h1 class="fw-bold mb-4" style="color: #667eea;">Privacy Policy</h1>
+                    <h1 class="fw-bold mb-4 heading-primary">Privacy Policy</h1>
                     <p class="text-muted">Last Updated: <?php echo date('F d, Y'); ?></p>
                     <hr class="mb-5">
 
-                    <div class="mb-5">
-                        <h3 class="fw-bold mb-3">1. Information We Collect</h3>
-                        <p class="text-secondary">We collect information you provide directly to us, such as when you create an account, make a purchase, or contact us for support.</p>
+                    <?php $i = 1; foreach($sections as $sec): ?>
+                    <div class="mb-5 fade-in-up fade-delay-<?php echo min($i, 5); ?>">
+                        <h3 class="fw-bold mb-3"><?php echo $i . '. ' . htmlspecialchars($sec['section_title']); ?></h3>
+                        <div class="text-secondary"><?php echo $sec['content']; ?></div>
                     </div>
-
-                    <div class="mb-5">
-                        <h3 class="fw-bold mb-3">2. How We Use Your Information</h3>
-                        <p class="text-secondary">We use the information we collect to provide, maintain, and improve our services, process transactions, and communicate with you.</p>
-                    </div>
-
-                    <div class="mb-5">
-                        <h3 class="fw-bold mb-3">3. Information Sharing</h3>
-                        <p class="text-secondary">We do not share your personal information with third parties except as described in this policy or with your consent.</p>
-                    </div>
-
-                    <div class="mb-5">
-                        <h3 class="fw-bold mb-3">4. Security</h3>
-                        <p class="text-secondary">We take reasonable measures to help protect information about you from loss, theft, misuse, and unauthorized access, disclosure, alteration, and destruction.</p>
-                    </div>
+                    <?php $i++; endforeach; ?>
 
                     <div class="text-center mt-5">
                         <a href="index.php" class="btn btn-primary btn-gradient">Back to Home</a>
