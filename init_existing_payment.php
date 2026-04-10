@@ -1,4 +1,5 @@
 <?php
+
 /**
  * init_existing_payment.php
  * Initializes payment gateway for an EXISTING database order.
@@ -7,10 +8,10 @@
 session_start();
 include_once 'db_config.php';
 include_once 'payment_config.php';
-header('Content-Type: application/json');
+include_once 'response_helper.php';
 
 if (!isset($_SESSION['user'])) {
-    echo json_encode(['success' => false, 'message' => 'Please login to continue.']); exit;
+    send_status(false, 'Please login to continue.');
 }
 
 $email      = $_SESSION['user'];
@@ -22,7 +23,7 @@ $oq = mysqli_query($con, "SELECT * FROM orders WHERE id=$order_id AND user_email
 $order = mysqli_fetch_assoc($oq);
 
 if (!$order) {
-    echo json_encode(['success' => false, 'message' => 'Invalid or already paid order.']); exit;
+    send_status(false, 'Invalid or already paid order.');
 }
 
 $total        = (float)$order['total_amount'];
@@ -52,13 +53,12 @@ if ($method === 'razorpay') {
     curl_close($ch);
     $rzp = json_decode($response, true);
     if ($http_code !== 200 || empty($rzp['id'])) {
-        echo json_encode(['success' => false, 'message' => 'Razorpay error: ' . ($rzp['error']['description'] ?? '')]); exit;
+        send_status(false, 'Razorpay error: ' . ($rzp['error']['description'] ?? ''));
     }
-    
+
     $_SESSION['rzp_pending'] = ['db_order_id' => $order_id, 'offer_id' => null];
-    
-    echo json_encode([
-        'success'      => true,
+
+    send_status(true, 'Payment initialized successfully.', [
         'rzp_order_id' => $rzp['id'],
         'amount'       => $rzp['amount'],
         'currency'     => $rzp['currency'],
@@ -66,7 +66,6 @@ if ($method === 'razorpay') {
         'order_id'     => $order_id,
         'order_number' => $order_number,
     ]);
-
 } elseif ($method === 'cashfree') {
     $ch = curl_init(CF_API_BASE . '/orders');
     curl_setopt_array($ch, [
@@ -97,17 +96,15 @@ if ($method === 'razorpay') {
     curl_close($ch);
     $cf = json_decode($response, true);
     if ($http_code !== 200 || empty($cf['payment_session_id'])) {
-        echo json_encode(['success' => false, 'message' => 'Cashfree error: ' . ($cf['message'] ?? 'Unknown')]); exit;
+        send_status(false, 'Cashfree error: ' . ($cf['message'] ?? 'Unknown'));
     }
 
     $_SESSION['cf_pending'] = ['db_order_id' => $order_id, 'offer_id' => null];
-    
-    echo json_encode([
-        'success'            => true,
+
+    send_status(true, 'Payment initialized successfully.', [
         'payment_session_id' => $cf['payment_session_id'],
         'cf_order_id'        => $cf['order_id'] ?? ''
     ]);
-
 } elseif ($method === 'paypal') {
     // 1. Get access token
     $ch = curl_init(PP_API_BASE . '/v1/oauth2/token');
@@ -120,9 +117,9 @@ if ($method === 'razorpay') {
     $tok = json_decode(curl_exec($ch), true);
     curl_close($ch);
     if (empty($tok['access_token'])) {
-        echo json_encode(['success' => false, 'message' => 'PayPal auth failed.']); exit;
+        send_status(false, 'PayPal auth failed.');
     }
-    
+
     // 2. Create Order
     $ch = curl_init(PP_API_BASE . '/v2/checkout/orders');
     curl_setopt_array($ch, [
@@ -146,7 +143,7 @@ if ($method === 'razorpay') {
     curl_close($ch);
     $pp = json_decode($response, true);
     if ($http_code !== 201 || empty($pp['id'])) {
-        echo json_encode(['success' => false, 'message' => 'PayPal order creation failed.']); exit;
+        send_status(false, 'PayPal order creation failed.');
     }
 
     $_SESSION['pp_pending'] = [
@@ -155,8 +152,7 @@ if ($method === 'razorpay') {
         'access_token' => $tok['access_token']
     ];
 
-    echo json_encode(['success' => true, 'paypal_order_id' => $pp['id']]);
-
+    send_status(true, 'Payment initialized successfully.', ['paypal_order_id' => $pp['id']]);
 } else {
-    echo json_encode(['success' => false, 'message' => 'Invalid payment method.']);
+    send_status(false, 'Invalid payment method.');
 }

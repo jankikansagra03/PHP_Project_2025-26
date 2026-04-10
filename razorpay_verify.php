@@ -1,17 +1,18 @@
 <?php
+
 /**
  * razorpay_verify.php
  * AJAX POST — Verifies Razorpay payment signature, then finalises the order.
- * Returns JSON { success, message, order_id }
+ * Returns a plain-text status reply.
  */
 session_start();
 include_once 'db_config.php';
 include_once 'payment_config.php';
 include_once 'order_helper.php';
-header('Content-Type: application/json');
+include_once 'response_helper.php';
 
 if (!isset($_SESSION['user'])) {
-    echo json_encode(['success' => false, 'message' => 'Not authenticated.']); exit;
+    send_status(false, 'Not authenticated.');
 }
 
 $email              = $_SESSION['user'];
@@ -22,7 +23,7 @@ $db_order_id        = (int)($_SESSION['rzp_pending']['db_order_id'] ?? 0);
 $offer_id           = $_SESSION['rzp_pending']['offer_id'] ?? null;
 
 if (!$rzp_order_id || !$rzp_payment_id || !$rzp_signature || !$db_order_id) {
-    echo json_encode(['success' => false, 'message' => 'Missing payment data.']); exit;
+    send_status(false, 'Missing payment data.');
 }
 
 // Verify HMAC-SHA256 signature
@@ -30,7 +31,7 @@ $expected = hash_hmac('sha256', $rzp_order_id . '|' . $rzp_payment_id, RPY_KEY_S
 
 if (!hash_equals($expected, $rzp_signature)) {
     mysqli_query($con, "UPDATE orders SET payment_status='Failed', order_status='Cancelled' WHERE id=$db_order_id");
-    echo json_encode(['success' => false, 'message' => 'Payment signature verification failed.']); exit;
+    send_status(false, 'Payment signature verification failed.');
 }
 
 // Payment verified — finalise order
@@ -46,8 +47,4 @@ if (isset($_SESSION['pay_existing']) && $_SESSION['pay_existing']['db_order_id']
 
 unset($_SESSION['rzp_pending']);
 
-echo json_encode([
-    'success'  => true,
-    'message'  => 'Payment verified successfully!',
-    'order_id' => $db_order_id,
-]);
+send_status(true, 'Payment verified successfully!', ['order_id' => $db_order_id]);

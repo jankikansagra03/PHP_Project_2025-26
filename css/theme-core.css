@@ -6,12 +6,16 @@
   --theme-text: #1f2937;
   --theme-bg-start: #0f172a;
   --theme-bg-end: #1f2937;
-  --primary-gradient: linear-gradient(135deg,
-      var(--theme-primary) 0%,
-      var(--theme-secondary) 100%);
-  --secondary-gradient: linear-gradient(135deg,
-      var(--theme-secondary) 0%,
-      var(--theme-accent) 100%);
+  --primary-gradient: linear-gradient(
+    135deg,
+    var(--theme-primary) 0%,
+    var(--theme-secondary) 100%
+  );
+  --secondary-gradient: linear-gradient(
+    135deg,
+    var(--theme-secondary) 0%,
+    var(--theme-accent) 100%
+  );
   --sidebar-w: 260px;
   --topbar-h: 64px;
 }
@@ -24,9 +28,11 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(135deg,
-      var(--theme-bg-start) 0%,
-      var(--theme-bg-end) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--theme-bg-start) 0%,
+    var(--theme-bg-end) 100%
+  );
   background-attachment: fixed;
   color: var(--theme-text);
 }
@@ -97,6 +103,10 @@ body {
 }
 
 .btn-gradient {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   background: var(--primary-gradient);
   border: none;
   color: #fff;
@@ -104,7 +114,8 @@ body {
   padding: 0.5rem 1.5rem;
   border-radius: 50px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px color-mix(in srgb, var(--theme-primary) 45%, transparent);
+  box-shadow: 0 4px 15px
+    color-mix(in srgb, var(--theme-primary) 45%, transparent);
 }
 
 .btn-gradient:hover {
@@ -113,6 +124,10 @@ body {
 }
 
 .btn-outline-gradient {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
   border: 2px solid var(--theme-primary);
   color: var(--theme-primary);
   font-weight: 600;
@@ -303,7 +318,8 @@ footer a:hover {
 
 .theme-preset.active {
   border-color: var(--theme-primary);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--theme-primary) 24%, transparent);
+  box-shadow: 0 0 0 2px
+    color-mix(in srgb, var(--theme-primary) 24%, transparent);
 }
 
 .theme-preset .swatch {

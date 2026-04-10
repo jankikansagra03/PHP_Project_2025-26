@@ -159,7 +159,7 @@ mysqli_query($con, $expire_otp_query);
 //   description TEXT DEFAULT NULL,
 //   long_description LONGTEXT DEFAULT NULL,
 //   image VARCHAR(255) DEFAULT NULL,
-//   gallery_images JSON DEFAULT NULL,         -- JSON array of image filenames/URLs
+//   gallery_images LONGTEXT DEFAULT NULL,     -- array of image filenames/URLs
 //   status ENUM('Active','Inactive') NOT NULL DEFAULT 'Active',
 //   CONSTRAINT fk_products_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
 // )";

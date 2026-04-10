@@ -480,7 +480,7 @@ ob_start();
         navigator.clipboard.writeText(code).then(() => {
             // Find Bootstrap Toast constructor globally or fallback to alert
             if (typeof bootstrap !== 'undefined') {
-                const toastElement = document.getElementById('copyToast');
+                const toastElement = $('#copyToast').get(0);
                 const toast = new bootstrap.Toast(toastElement);
                 toast.show();
             } else {

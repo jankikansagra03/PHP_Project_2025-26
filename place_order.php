@@ -1,35 +1,33 @@
 <?php
+
 /**
  * place_order.php
  * AJAX POST — creates an order, clears cart, records coupon usage
- * Returns JSON {success, order_id, message}
+ * Returns a plain-text status reply.
  */
 session_start();
 include_once 'db_config.php';
-header('Content-Type: application/json');
+include_once 'response_helper.php';
 
 if (!isset($_SESSION['user'])) {
-    echo json_encode(['success' => false, 'message' => 'Please login to continue.']);
-    exit;
+    send_status(false, 'Please login to continue.');
 }
 
 $email     = $_SESSION['user'];
 $esc_email = mysqli_real_escape_string($con, $email);
 
 $address_id     = (int)($_POST['address_id']     ?? 0);
-$payment_method = in_array($_POST['payment_method'] ?? 'cod', ['cod','razorpay']) ? $_POST['payment_method'] : 'cod';
+$payment_method = in_array($_POST['payment_method'] ?? 'cod', ['cod', 'razorpay']) ? $_POST['payment_method'] : 'cod';
 $coupon_code    = strtoupper(trim($_POST['coupon_code'] ?? ''));
 
 // ── 1. Validate address ───────────────────────────────────
 if (!$address_id) {
-    echo json_encode(['success' => false, 'message' => 'No delivery address selected.']);
-    exit;
+    send_status(false, 'No delivery address selected.');
 }
 $addr_q = mysqli_query($con, "SELECT * FROM addresses WHERE id=$address_id AND email='$esc_email' LIMIT 1");
 $addr   = $addr_q ? mysqli_fetch_assoc($addr_q) : null;
 if (!$addr) {
-    echo json_encode(['success' => false, 'message' => 'Invalid delivery address.']);
-    exit;
+    send_status(false, 'Invalid delivery address.');
 }
 
 // ── 2. Fetch cart items ───────────────────────────────────
@@ -43,16 +41,14 @@ $cart_items    = [];
 $cart_subtotal = 0.0;
 while ($row = mysqli_fetch_assoc($cart_q)) {
     if ($row['stock'] < $row['quantity']) {
-        echo json_encode(['success' => false, 'message' => '"' . $row['name'] . '" is out of stock. Please update your cart.']);
-        exit;
+        send_status(false, '"' . $row['name'] . '" is out of stock. Please update your cart.');
     }
     $row['line_total'] = (float)$row['final_price'] * (int)$row['quantity'];
     $cart_subtotal    += $row['line_total'];
     $cart_items[]      = $row;
 }
 if (empty($cart_items)) {
-    echo json_encode(['success' => false, 'message' => 'Your cart is empty.']);
-    exit;
+    send_status(false, 'Your cart is empty.');
 }
 
 // ── 3. Calculate discount ─────────────────────────────────
@@ -93,10 +89,19 @@ try {
     ");
     $pay_status = 'Pending';
     $delivery_email  = $esc_email;
-    mysqli_stmt_bind_param($ins, 'ssssssdddds',
-        $order_number, $email,
-        $addr['name'], $delivery_email, $addr['phone'], $delivery_address,
-        $cart_subtotal, $discount_amount, $shipping_fee, $total,
+    mysqli_stmt_bind_param(
+        $ins,
+        'ssssssdddds',
+        $order_number,
+        $email,
+        $addr['name'],
+        $delivery_email,
+        $addr['phone'],
+        $delivery_address,
+        $cart_subtotal,
+        $discount_amount,
+        $shipping_fee,
+        $total,
         $payment_method
     );
     if (!mysqli_stmt_execute($ins)) {
@@ -115,7 +120,8 @@ try {
         $pname   = mysqli_real_escape_string($con, $ci['name']);
         $pimage  = mysqli_real_escape_string($con, $ci['image'] ?? '');
 
-        $item_ins = mysqli_prepare($con,
+        $item_ins = mysqli_prepare(
+            $con,
             "INSERT INTO order_items (order_id, product_id, product_name, product_image, price, discount, quantity, subtotal)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
         );
@@ -147,14 +153,11 @@ try {
 
     mysqli_commit($con);
 
-    echo json_encode([
-        'success'      => true,
+    send_status(true, 'Order placed successfully!', [
         'order_id'     => $order_id,
         'order_number' => $order_number,
-        'message'      => 'Order placed successfully!'
     ]);
-
 } catch (Exception $e) {
     mysqli_rollback($con);
-    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+    send_status(false, $e->getMessage());
 }

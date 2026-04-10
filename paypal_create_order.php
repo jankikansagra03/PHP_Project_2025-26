@@ -1,17 +1,18 @@
 <?php
+
 /**
  * paypal_create_order.php
  * AJAX POST — Creates a pending DB order + PayPal order.
- * Returns JSON { success, paypal_order_id, db_order_id }
+ * Returns a plain-text status reply.
  */
 session_start();
 include_once 'db_config.php';
 include_once 'payment_config.php';
 include_once 'order_helper.php';
-header('Content-Type: application/json');
+include_once 'response_helper.php';
 
 if (!isset($_SESSION['user'])) {
-    echo json_encode(['success' => false, 'message' => 'Please login to continue.']); exit;
+    send_status(false, 'Please login to continue.');
 }
 
 $email       = $_SESSION['user'];
@@ -20,7 +21,9 @@ $coupon_code = trim($_POST['coupon_code']  ?? '');
 
 // 1. Create pending DB order
 $result = createPendingOrder($con, $email, 'paypal', $address_id, $coupon_code);
-if (!$result['success']) { echo json_encode($result); exit; }
+if (!$result['success']) {
+    send_status(false, $result['message'] ?? 'Unable to create order.');
+}
 
 $db_order_id = $result['order_id'];
 $total       = $result['total'];
@@ -40,7 +43,7 @@ curl_close($ch);
 $access_token = $tok_resp['access_token'] ?? null;
 if (!$access_token) {
     mysqli_query($con, "UPDATE orders SET payment_status='Failed', order_status='Cancelled' WHERE id=$db_order_id");
-    echo json_encode(['success' => false, 'message' => 'PayPal authentication failed.']); exit;
+    send_status(false, 'PayPal authentication failed.');
 }
 
 // 3. Create PayPal order
@@ -72,13 +75,12 @@ curl_close($ch);
 
 if ($http_code !== 201 || empty($pp_resp['id'])) {
     mysqli_query($con, "UPDATE orders SET payment_status='Failed', order_status='Cancelled' WHERE id=$db_order_id");
-    echo json_encode(['success' => false, 'message' => 'PayPal order creation failed.']); exit;
+    send_status(false, 'PayPal order creation failed.');
 }
 
 $_SESSION['pp_pending'] = ['db_order_id' => $db_order_id, 'offer_id' => $result['offer_id'], 'access_token' => $access_token];
 
-echo json_encode([
-    'success'         => true,
+send_status(true, 'PayPal order created successfully.', [
     'paypal_order_id' => $pp_resp['id'],
     'db_order_id'     => $db_order_id,
 ]);

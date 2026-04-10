@@ -549,7 +549,16 @@ ob_start();
 <script src="js/validate.js"></script>
 <script>
     $(document).ready(function() {
-        var eligibleUsersByProduct = <?= json_encode($eligibleUsersByProduct, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+        var eligibleUsersByProduct = {};
+        <?php foreach ($eligibleUsersByProduct as $productId => $users): ?>
+            eligibleUsersByProduct['<?= (int)$productId ?>'] = [
+                <?php foreach ($users as $user): ?> {
+                        email: '<?= addslashes($user['email'] ?? '') ?>',
+                        fullname: '<?= addslashes($user['fullname'] ?? '') ?>'
+                    },
+                <?php endforeach; ?>
+            ];
+        <?php endforeach; ?>
 
         function populateUserSelect(productSelectEl) {
             var targetId = productSelectEl.getAttribute('data-target-user');

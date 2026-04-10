@@ -68,7 +68,7 @@ ob_start();
                     <input type="password" class="form-control" id="current_password" name="current_password"
                         placeholder="Enter current password" data-validation="required">
                     <button class="btn btn-outline-secondary border-0" type="button"
-                        onclick="togglePassword('current_password')">
+                        onclick="togglePassword(this, 'current_password')">
                         <i class="fas fa-eye"></i>
                     </button>
                 </div>
@@ -82,7 +82,7 @@ ob_start();
                     <input type="password" class="form-control" id="confirm_password_confirm" name="new_password"
                         placeholder="Enter new password" data-validation="required strongPassword">
                     <button class="btn btn-outline-secondary border-0" type="button"
-                        onclick="togglePassword('confirm_password_confirm')">
+                        onclick="togglePassword(this, 'confirm_password_confirm')">
                         <i class="fas fa-eye"></i>
                     </button>
                 </div>
@@ -99,7 +99,7 @@ ob_start();
                     <input type="password" class="form-control" id="confirm_password" name="confirm_password"
                         placeholder="Confirm new password" data-validation="required confirmPassword">
                     <button class="btn btn-outline-secondary border-0" type="button"
-                        onclick="togglePassword('confirm_password')">
+                        onclick="togglePassword(this, 'confirm_password')">
                         <i class="fas fa-eye"></i>
                     </button>
                 </div>
@@ -123,18 +123,16 @@ ob_start();
 
 
 <script>
-    function togglePassword(fieldId) {
-        const field = document.getElementById(fieldId);
-        const icon = event.currentTarget.querySelector('i');
+    function togglePassword(btn, fieldId) {
+        var $field = $('#' + fieldId);
+        var $icon = $(btn).find('i');
 
-        if (field.type === 'password') {
-            field.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
+        if ($field.attr('type') === 'password') {
+            $field.attr('type', 'text');
+            $icon.removeClass('fa-eye').addClass('fa-eye-slash');
         } else {
-            field.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
+            $field.attr('type', 'password');
+            $icon.removeClass('fa-eye-slash').addClass('fa-eye');
         }
     }
 </script>

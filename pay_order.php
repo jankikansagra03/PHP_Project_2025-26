@@ -8,13 +8,17 @@ $active_sidebar = 'orders';
 $esc_email = mysqli_real_escape_string($con, $email);
 $order_id  = (int)($_GET['order_id'] ?? 0);
 
-if (!$order_id) { header('Location: my_orders.php'); exit; }
+if (!$order_id) {
+    header('Location: my_orders.php');
+    exit;
+}
 
 $oq = mysqli_query($con, "SELECT * FROM orders WHERE id=$order_id AND user_email='$esc_email' LIMIT 1");
 $order = $oq ? mysqli_fetch_assoc($oq) : null;
 
 if (!$order || $order['payment_status'] === 'Paid' || $order['order_status'] === 'Cancelled') {
-    header('Location: my_orders.php'); exit;
+    header('Location: my_orders.php');
+    exit;
 }
 
 // Fetch items
@@ -27,16 +31,6 @@ while ($row = mysqli_fetch_assoc($iq)) {
 include_once 'payment_config.php';
 ob_start();
 ?>
-
-<!-- Toast -->
-<div class="position-fixed top-0 end-0 p-3" style="z-index:9999">
-    <div id="ocToast" class="toast align-items-center text-white border-0 shadow-lg rounded-3" role="alert" aria-atomic="true">
-        <div class="d-flex">
-            <div class="toast-body fw-semibold small" id="ocToastMsg"></div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-        </div>
-    </div>
-</div>
 
 <div class="row g-4 justify-content-center mt-2">
     <!-- LEFT: Payment Method Selection -->
@@ -104,17 +98,17 @@ ob_start();
                 <!-- Items -->
                 <div style="max-height:250px;overflow-y:auto;margin-bottom:1.25rem;">
                     <?php foreach ($items as $ci): ?>
-                    <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9;">
-                        <div style="width:52px;height:52px;background:#f8fafc;border-radius:10px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid #e2e8f0;">
-                            <img src="<?= htmlspecialchars($ci['product_image'] ?? 'images/placeholder.png', ENT_QUOTES) ?>"
-                                 style="width:44px;height:44px;object-fit:contain;mix-blend-mode:multiply;">
+                        <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f1f5f9;">
+                            <div style="width:52px;height:52px;background:#f8fafc;border-radius:10px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;border:1px solid #e2e8f0;">
+                                <img src="<?= htmlspecialchars($ci['product_image'] ?? 'images/placeholder.png', ENT_QUOTES) ?>"
+                                    style="width:44px;height:44px;object-fit:contain;mix-blend-mode:multiply;">
+                            </div>
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-weight:700;color:#1e293b;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><?= htmlspecialchars($ci['product_name']) ?></div>
+                                <div style="color:#94a3b8;font-size:.78rem;margin-top:2px;">Qty: <?= $ci['quantity'] ?></div>
+                            </div>
+                            <div style="font-weight:800;color:#1e293b;font-size:.9rem;flex-shrink:0;">₹<?= number_format($ci['subtotal'], 2) ?></div>
                         </div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="font-weight:700;color:#1e293b;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><?= htmlspecialchars($ci['product_name']) ?></div>
-                            <div style="color:#94a3b8;font-size:.78rem;margin-top:2px;">Qty: <?= $ci['quantity'] ?></div>
-                        </div>
-                        <div style="font-weight:800;color:#1e293b;font-size:.9rem;flex-shrink:0;">₹<?= number_format($ci['subtotal'], 2) ?></div>
-                    </div>
                     <?php endforeach; ?>
                 </div>
 
@@ -125,10 +119,10 @@ ob_start();
                         <span style="font-weight:600;">₹<?= number_format($order['subtotal'], 2) ?></span>
                     </div>
                     <?php if ($order['discount'] > 0): ?>
-                    <div class="d-flex justify-content-between mb-2">
-                        <span style="color:#16a34a;font-size:.88rem;font-weight:600;"><i class="fas fa-tag me-1"></i>Discount</span>
-                        <span style="color:#16a34a;font-weight:700;">-₹<?= number_format($order['discount'], 2) ?></span>
-                    </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span style="color:#16a34a;font-size:.88rem;font-weight:600;"><i class="fas fa-tag me-1"></i>Discount</span>
+                            <span style="color:#16a34a;font-weight:700;">-₹<?= number_format($order['discount'], 2) ?></span>
+                        </div>
                     <?php endif; ?>
                     <div class="d-flex justify-content-between mb-2">
                         <span style="color:#64748b;font-size:.88rem;">Shipping</span>
@@ -151,7 +145,7 @@ ob_start();
 
                 <div id="generalPayBtnContainer">
                     <button class="btn btn-gradient w-100 py-3 fw-bold rounded-3 shadow-sm mb-3"
-                            id="payOrderBtn" style="font-size:1.05rem;" onclick="processPayment()">
+                        id="payOrderBtn" style="font-size:1.05rem;" onclick="processPayment()">
                         <i class="fas fa-lock me-2"></i>Pay ₹<?= number_format($order['total_amount'], 2) ?>
                     </button>
                 </div>
@@ -165,17 +159,56 @@ ob_start();
 </div>
 
 <style>
-.payment-option-card {
-    display:flex; align-items:center; gap:14px;
-    border-radius:14px; padding:.85rem 1rem;
-    cursor:pointer; transition:border-color .2s, background .2s;
-    position:relative;
-}
-.payment-option-card input[type=radio] { flex-shrink:0; width:18px; height:18px; }
-.pm-icon { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:1.1rem; }
-.pm-title { font-weight:700; font-size:.9rem; color:#1e293b; }
-.pm-sub   { font-size:.75rem; color:#94a3b8; margin-top:1px; }
-.pm-badge { position:absolute; top:10px; right:12px; font-size:.6rem; font-weight:700; color:#fff; padding:2px 8px; border-radius:20px; }
+    .payment-option-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        border-radius: 14px;
+        padding: .85rem 1rem;
+        cursor: pointer;
+        transition: border-color .2s, background .2s;
+        position: relative;
+    }
+
+    .payment-option-card input[type=radio] {
+        flex-shrink: 0;
+        width: 18px;
+        height: 18px;
+    }
+
+    .pm-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 1.1rem;
+    }
+
+    .pm-title {
+        font-weight: 700;
+        font-size: .9rem;
+        color: #1e293b;
+    }
+
+    .pm-sub {
+        font-size: .75rem;
+        color: #94a3b8;
+        margin-top: 1px;
+    }
+
+    .pm-badge {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        font-size: .6rem;
+        font-weight: 700;
+        color: #fff;
+        padding: 2px 8px;
+        border-radius: 20px;
+    }
 </style>
 
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -183,142 +216,167 @@ ob_start();
 <script src="https://www.paypal.com/sdk/js?client-id=<?= PP_CLIENT_ID ?>&currency=INR" data-namespace="paypalSDK"></script>
 
 <script>
-const ORDER_ID = <?= (int)$order_id ?>;
+    const ORDER_ID = <?= (int)$order_id ?>;
 
-function showToast(msg, ok) {
-    var t = document.getElementById('ocToast');
-    t.classList.remove('bg-success','bg-danger');
-    t.classList.add(ok ? 'bg-success' : 'bg-danger');
-    document.getElementById('ocToastMsg').textContent = msg;
-    new bootstrap.Toast(t, {delay:4000}).show();
-}
+    function setFlashCookie(type, msg) {
+        document.cookie = type + '=' + encodeURIComponent(msg) + '; path=/; max-age=5';
+    }
 
-// Highlight selected card
-document.querySelectorAll('input[name="payment_method"]').forEach(function(radio) {
-    radio.addEventListener('change', function() {
-        document.querySelectorAll('.payment-option-card').forEach(function(card) {
-            card.style.borderColor = '#e2e8f0';
-            card.style.background  = '#fff';
+    function flashReload(msg, ok) {
+        setFlashCookie(ok ? 'success' : 'error', msg || (ok ? 'Success' : 'Something went wrong.'));
+        location.reload();
+    }
+
+    // Highlight selected card
+    $(document).on('change', 'input[name="payment_method"]', function() {
+        $('.payment-option-card').css({
+            borderColor: '#e2e8f0',
+            background: '#fff'
         });
-        var sel = this.closest('.payment-option-card');
-        sel.style.borderColor = 'var(--theme-primary,#1f7a8c)';
-        sel.style.background  = 'rgba(31,122,140,.03)';
 
-        const isPayPal = this.value === 'paypal';
-        document.getElementById('generalPayBtnContainer').style.display = isPayPal ? 'none' : '';
-        document.getElementById('paypalBtnContainer').style.display     = isPayPal ? '' : 'none';
+        $(this).closest('.payment-option-card').css({
+            borderColor: 'var(--theme-primary,#1f7a8c)',
+            background: 'rgba(31,122,140,.03)'
+        });
+
+        const isPayPal = $(this).val() === 'paypal';
+        $('#generalPayBtnContainer').css('display', isPayPal ? 'none' : '');
+        $('#paypalBtnContainer').css('display', isPayPal ? '' : 'none');
         if (isPayPal) renderPayPalButtons();
     });
-});
 
-function setLoading(btn, busy) {
-    if(!btn) return;
-    btn.disabled = busy;
-    btn.innerHTML = busy
-        ? '<i class="fas fa-spinner fa-spin me-2"></i>Processing...'
-        : '<i class="fas fa-lock me-2"></i>Pay ₹<?= number_format($order['total_amount'], 2) ?>';
-}
+    function setLoading(btn, busy) {
+        if (!btn) return;
+        btn.disabled = busy;
+        btn.innerHTML = busy ?
+            '<i class="fas fa-spinner fa-spin me-2"></i>Processing...' :
+            '<i class="fas fa-lock me-2"></i>Pay ₹<?= number_format($order['total_amount'], 2) ?>';
+    }
 
-function processPayment() {
-    const method = document.querySelector('input[name="payment_method"]:checked')?.value;
-    const btn    = document.getElementById('payOrderBtn');
+    function processPayment() {
+        const method = $('input[name="payment_method"]:checked').val();
+        const btn = $('#payOrderBtn').get(0);
 
-    setLoading(btn, true);
+        setLoading(btn, true);
 
-    $.post('init_existing_payment.php', {
-        order_id: ORDER_ID,
-        payment_method: method
-    }, function(data) {
-        if (!data.success) {
-            showToast(data.message || 'Payment initiation failed.', false);
-            setLoading(btn, false);
-            return;
-        }
+        $.post('init_existing_payment.php', {
+            order_id: ORDER_ID,
+            payment_method: method
+        }, function(raw) {
+            var data = parseAppReply(raw);
+            if (!data.success) {
+                flashReload(data.message || 'Payment initiation failed.', false);
+                setLoading(btn, false);
+                return;
+            }
 
-        if (method === 'cashfree') {
-            const cashfree = Cashfree({ mode: '<?= CF_JS_ENV ?>' });
-            cashfree.checkout({ paymentSessionId: data.payment_session_id })
-                .then(function(result) {
-                    if (result.error) { showToast(result.error.message, false); setLoading(btn, false); }
+            if (method === 'cashfree') {
+                const cashfree = Cashfree({
+                    mode: '<?= CF_JS_ENV ?>'
                 });
-        } 
-        else if (method === 'razorpay') {
-            const options = {
-                key:         data.key_id,
-                amount:      data.amount,
-                currency:    data.currency,
-                name:        'JK Store',
-                description: 'Payment for Order #' + data.order_number,
-                order_id:    data.rzp_order_id,
-                image:       '<?= APP_URL ?>/images/logo.png',
-                handler: function(response) {
-                    $.post('razorpay_verify.php', {
-                        razorpay_order_id:   response.razorpay_order_id,
-                        razorpay_payment_id: response.razorpay_payment_id,
-                        razorpay_signature:  response.razorpay_signature
-                    }, function(vData) {
-                        if (vData.success) {
-                            window.location.href = 'order_success.php?order_id=' + vData.order_id;
-                        } else {
-                            showToast(vData.message || 'Verification failed.', false);
+                cashfree.checkout({
+                        paymentSessionId: data.payment_session_id
+                    })
+                    .then(function(result) {
+                        if (result.error) {
+                            flashReload(result.error.message, false);
                             setLoading(btn, false);
                         }
-                    }, 'json');
-                },
-                modal: { ondismiss: function() { setLoading(btn, false); } },
-                prefill: {
-                    name:    '<?= addslashes(htmlspecialchars($order['delivery_name'], ENT_QUOTES)) ?>',
-                    email:   '<?= addslashes(htmlspecialchars($order['user_email'], ENT_QUOTES)) ?>',
-                    contact: '<?= preg_replace('/[^0-9]/', '', $order['delivery_mobile'] ?? '') ?>'
-                },
-                theme: { color: '#1f7a8c' }
-            };
-            const rzp = new Razorpay(options);
-            rzp.on('payment.failed', function(resp) {
-                showToast('Payment failed: ' + resp.error.description, false);
-                setLoading(btn, false);
-            });
-            rzp.open();
-        }
-    }, 'json').fail(function() {
-        showToast('Server error. Please try again.', false);
-        setLoading(btn, false);
-    });
-}
+                    });
+            } else if (method === 'razorpay') {
+                const options = {
+                    key: data.key_id,
+                    amount: data.amount,
+                    currency: data.currency,
+                    name: 'JK Store',
+                    description: 'Payment for Order #' + data.order_number,
+                    order_id: data.rzp_order_id,
+                    image: '<?= APP_URL ?>/images/logo.png',
+                    handler: function(response) {
+                        $.post('razorpay_verify.php', {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature
+                        }, function(reply) {
+                            var vData = parseAppReply(reply);
+                            if (vData.success) {
+                                window.location.href = 'order_success.php?order_id=' + vData.order_id;
+                            } else {
+                                flashReload(vData.message || 'Verification failed.', false);
+                                setLoading(btn, false);
+                            }
+                        }, 'text');
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            setLoading(btn, false);
+                        }
+                    },
+                    prefill: {
+                        name: '<?= addslashes(htmlspecialchars($order['delivery_name'], ENT_QUOTES)) ?>',
+                        email: '<?= addslashes(htmlspecialchars($order['user_email'], ENT_QUOTES)) ?>',
+                        contact: '<?= preg_replace('/[^0-9]/', '', $order['delivery_mobile'] ?? '') ?>'
+                    },
+                    theme: {
+                        color: '#1f7a8c'
+                    }
+                };
+                const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function(resp) {
+                    flashReload('Payment failed: ' + resp.error.description, false);
+                    setLoading(btn, false);
+                });
+                rzp.open();
+            }
+        }, 'text').fail(function() {
+            flashReload('Server error. Please try again.', false);
+            setLoading(btn, false);
+        });
+    }
 
-// PayPal setup
-let paypalRendered = false;
-function renderPayPalButtons() {
-    if (paypalRendered) return;
-    paypalRendered = true;
-    paypalSDK.Buttons({
-        createOrder: function(data, actions) {
-            return $.post('init_existing_payment.php', {
-                order_id: ORDER_ID,
-                payment_method: 'paypal'
-            }).then(function(resp) {
-                const d = typeof resp === 'string' ? JSON.parse(resp) : resp;
-                if (!d.success) throw new Error(d.message);
-                return d.paypal_order_id;
-            });
-        },
-        onApprove: function(data, actions) {
-            return $.post('paypal_capture.php', {
-                paypal_order_id: data.orderID
-            }).then(function(resp) {
-                const d = typeof resp === 'string' ? JSON.parse(resp) : resp;
-                if (d.success) {
-                    window.location.href = 'order_success.php?order_id=' + ORDER_ID;
-                } else {
-                    showToast(d.message || 'PayPal capture failed.', false);
-                }
-            });
-        },
-        onError: function(err) { showToast('PayPal error: ' + err, false); },
-        onCancel: function() { showToast('PayPal payment cancelled.', false); },
-        style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' }
-    }).render('#paypalBtnContainer');
-}
+    // PayPal setup
+    let paypalRendered = false;
+
+    function renderPayPalButtons() {
+        if (paypalRendered) return;
+        paypalRendered = true;
+        paypalSDK.Buttons({
+            createOrder: function(data, actions) {
+                return $.post('init_existing_payment.php', {
+                    order_id: ORDER_ID,
+                    payment_method: 'paypal'
+                }).then(function(resp) {
+                    const d = parseAppReply(resp);
+                    if (!d.success) throw new Error(d.message);
+                    return d.paypal_order_id;
+                });
+            },
+            onApprove: function(data, actions) {
+                return $.post('paypal_capture.php', {
+                    paypal_order_id: data.orderID
+                }).then(function(resp) {
+                    const d = parseAppReply(resp);
+                    if (d.success) {
+                        window.location.href = 'order_success.php?order_id=' + ORDER_ID;
+                    } else {
+                        flashReload(d.message || 'PayPal capture failed.', false);
+                    }
+                });
+            },
+            onError: function(err) {
+                flashReload('PayPal error: ' + err, false);
+            },
+            onCancel: function() {
+                flashReload('PayPal payment cancelled.', false);
+            },
+            style: {
+                layout: 'vertical',
+                color: 'gold',
+                shape: 'rect',
+                label: 'pay'
+            }
+        }).render('#paypalBtnContainer');
+    }
 </script>
 
 <?php

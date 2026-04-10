@@ -253,22 +253,21 @@ $nav_items = [
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/theme-customizer.js"></script>
     <script>
-        const sidebar = document.getElementById('adminSidebar');
-        const overlay = document.getElementById('sidebarOverlay');
-        const toggleBtn = document.getElementById('sidebarToggle');
-
         function openSidebar() {
-            sidebar.classList.add('open');
-            overlay.classList.add('show');
+            $('#adminSidebar').addClass('open');
+            $('#sidebarOverlay').addClass('show');
         }
 
         function closeSidebar() {
-            sidebar.classList.remove('open');
-            overlay.classList.remove('show');
+            $('#adminSidebar').removeClass('open');
+            $('#sidebarOverlay').removeClass('show');
         }
 
-        toggleBtn.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
-        overlay.addEventListener('click', closeSidebar);
+        $('#sidebarToggle').on('click', function() {
+            $('#adminSidebar').hasClass('open') ? closeSidebar() : openSidebar();
+        });
+
+        $('#sidebarOverlay').on('click', closeSidebar);
     </script>
 </body>
 

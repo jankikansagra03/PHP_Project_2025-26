@@ -1,17 +1,18 @@
 <?php
+
 /**
  * razorpay_create_order.php
  * AJAX POST — Creates a pending DB order + Razorpay order.
- * Returns JSON { success, rzp_order_id, amount, currency, key_id, order_id, order_number }
+ * Returns a plain-text status reply.
  */
 session_start();
 include_once 'db_config.php';
 include_once 'payment_config.php';
 include_once 'order_helper.php';
-header('Content-Type: application/json');
+include_once 'response_helper.php';
 
 if (!isset($_SESSION['user'])) {
-    echo json_encode(['success' => false, 'message' => 'Please login to continue.']); exit;
+    send_status(false, 'Please login to continue.');
 }
 
 $email       = $_SESSION['user'];
@@ -20,7 +21,9 @@ $coupon_code = trim($_POST['coupon_code']  ?? '');
 
 // 1. Create pending order in DB
 $result = createPendingOrder($con, $email, 'razorpay', $address_id, $coupon_code);
-if (!$result['success']) { echo json_encode($result); exit; }
+if (!$result['success']) {
+    send_status(false, $result['message'] ?? 'Unable to create order.');
+}
 
 $order_id     = $result['order_id'];
 $order_number = $result['order_number'];
@@ -48,16 +51,12 @@ $rzp = json_decode($response, true);
 
 if ($http_code !== 200 || empty($rzp['id'])) {
     mysqli_query($con, "UPDATE orders SET payment_status='Failed', order_status='Cancelled' WHERE id=$order_id");
-    echo json_encode([
-        'success' => false,
-        'message' => 'Razorpay order creation failed: ' . ($rzp['error']['description'] ?? 'Unknown error'),
-    ]); exit;
+    send_status(false, 'Razorpay order creation failed: ' . ($rzp['error']['description'] ?? 'Unknown error'));
 }
 
 $_SESSION['rzp_pending'] = ['db_order_id' => $order_id, 'offer_id' => $result['offer_id']];
 
-echo json_encode([
-    'success'      => true,
+send_status(true, 'Razorpay order created successfully.', [
     'rzp_order_id' => $rzp['id'],
     'amount'       => $rzp['amount'],        // in paise
     'currency'     => $rzp['currency'],

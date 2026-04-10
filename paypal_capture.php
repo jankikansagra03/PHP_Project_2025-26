@@ -1,17 +1,18 @@
 <?php
+
 /**
  * paypal_capture.php
  * AJAX POST — Captures approved PayPal payment & finalises the order.
- * Returns JSON { success, message, order_id }
+ * Returns a plain-text status reply.
  */
 session_start();
 include_once 'db_config.php';
 include_once 'payment_config.php';
 include_once 'order_helper.php';
-header('Content-Type: application/json');
+include_once 'response_helper.php';
 
 if (!isset($_SESSION['user'])) {
-    echo json_encode(['success' => false, 'message' => 'Not authenticated.']); exit;
+    send_status(false, 'Not authenticated.');
 }
 
 $email          = $_SESSION['user'];
@@ -21,7 +22,7 @@ $offer_id       = $_SESSION['pp_pending']['offer_id'] ?? null;
 $access_token   = $_SESSION['pp_pending']['access_token'] ?? null;
 
 if (!$paypal_order_id || !$db_order_id) {
-    echo json_encode(['success' => false, 'message' => 'Missing payment data.']); exit;
+    send_status(false, 'Missing payment data.');
 }
 
 // Refresh access token if needed (session may have expired)
@@ -40,7 +41,7 @@ if (!$access_token) {
 }
 
 if (!$access_token) {
-    echo json_encode(['success' => false, 'message' => 'PayPal authentication failed.']); exit;
+    send_status(false, 'PayPal authentication failed.');
 }
 
 // Capture the payment
@@ -62,7 +63,7 @@ $pp = json_decode($pp_resp, true);
 
 if ($http_code !== 201 || ($pp['status'] ?? '') !== 'COMPLETED') {
     mysqli_query($con, "UPDATE orders SET payment_status='Failed', order_status='Cancelled' WHERE id=$db_order_id");
-    echo json_encode(['success' => false, 'message' => 'PayPal capture failed. Status: ' . ($pp['status'] ?? 'Unknown')]); exit;
+    send_status(false, 'PayPal capture failed. Status: ' . ($pp['status'] ?? 'Unknown'));
 }
 
 // Payment captured — finalise
@@ -80,8 +81,4 @@ if (isset($_SESSION['pay_existing']) && $_SESSION['pay_existing']['db_order_id']
 
 unset($_SESSION['pp_pending']);
 
-echo json_encode([
-    'success'  => true,
-    'message'  => 'PayPal payment captured successfully!',
-    'order_id' => $db_order_id,
-]);
+send_status(true, 'PayPal payment captured successfully!', ['order_id' => $db_order_id]);

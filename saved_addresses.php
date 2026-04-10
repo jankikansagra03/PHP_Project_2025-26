@@ -34,80 +34,89 @@ ob_start();
                 <p class="text-muted small mb-0 mt-1">Manage your delivery addresses</p>
             </div>
             <button class="btn btn-gradient rounded-pill px-4 shadow-sm"
-                    data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                data-bs-toggle="modal" data-bs-target="#addAddressModal">
                 <i class="fas fa-plus me-2"></i>Add New Address
             </button>
         </div>
 
         <?php if (empty($addresses)): ?>
-        <div style="text-align:center;padding:3rem 1rem;background:#f8fafc;border-radius:16px;border:2px dashed #e2e8f0;">
-            <div style="font-size:3.5rem;margin-bottom:1rem;">📍</div>
-            <h5 style="font-weight:700;color:#374151;">No saved addresses</h5>
-            <p style="color:#94a3b8;font-size:.9rem;">Add a delivery address to get started.</p>
-            <button class="btn btn-gradient rounded-pill px-4 mt-2"
+            <div style="text-align:center;padding:3rem 1rem;background:#f8fafc;border-radius:16px;border:2px dashed #e2e8f0;">
+                <div style="font-size:3.5rem;margin-bottom:1rem;">📍</div>
+                <h5 style="font-weight:700;color:#374151;">No saved addresses</h5>
+                <p style="color:#94a3b8;font-size:.9rem;">Add a delivery address to get started.</p>
+                <button class="btn btn-gradient rounded-pill px-4 mt-2"
                     data-bs-toggle="modal" data-bs-target="#addAddressModal">
-                <i class="fas fa-plus me-2"></i>Add First Address
-            </button>
-        </div>
+                    <i class="fas fa-plus me-2"></i>Add First Address
+                </button>
+            </div>
         <?php else: ?>
-        <div class="row g-4" id="addressGrid">
-            <?php
-            $iconMap  = ['home'=>'fa-home','office'=>'fa-building','other'=>'fa-map-marker-alt'];
-            $colorMap = ['home'=>'#3b82f6','office'=>'#10b981','other'=>'#f59e0b'];
-            $bgMap    = ['home'=>'#eff6ff','office'=>'#f0fdf4','other'=>'#fffbeb'];
-            foreach ($addresses as $row):
-                $lbl = strtolower($row['label'] ?? 'home');
-                $ico = $iconMap[$lbl] ?? 'fa-map-marker-alt';
-                $col = $colorMap[$lbl] ?? '#64748b';
-                $bg  = $bgMap[$lbl] ?? '#f8fafc';
-            ?>
-            <div class="col-md-6" id="addr-grid-<?= $row['id'] ?>">
-                <div class="card h-100 border-0 shadow-sm rounded-4 address-card-sa position-relative overflow-hidden"
-                     style="border:1.5px solid <?= !empty($row['is_default']) ? 'var(--theme-primary,#1f7a8c)' : '#e2e8f0' ?>!important;">
+            <div class="row g-4" id="addressGrid">
+                <?php
+                $iconMap  = ['home' => 'fa-home', 'office' => 'fa-building', 'other' => 'fa-map-marker-alt'];
+                $colorMap = ['home' => '#3b82f6', 'office' => '#10b981', 'other' => '#f59e0b'];
+                $bgMap    = ['home' => '#eff6ff', 'office' => '#f0fdf4', 'other' => '#fffbeb'];
+                foreach ($addresses as $row):
+                    $lbl = strtolower($row['label'] ?? 'home');
+                    $ico = $iconMap[$lbl] ?? 'fa-map-marker-alt';
+                    $col = $colorMap[$lbl] ?? '#64748b';
+                    $bg  = $bgMap[$lbl] ?? '#f8fafc';
+                ?>
+                    <div class="col-md-6" id="addr-grid-<?= $row['id'] ?>">
+                        <div class="card h-100 border-0 shadow-sm rounded-4 address-card-sa position-relative overflow-hidden"
+                            style="border:1.5px solid <?= !empty($row['is_default']) ? 'var(--theme-primary,#1f7a8c)' : '#e2e8f0' ?>!important;">
 
-                    <!-- Colored top bar -->
-                    <div style="height:4px;background:<?= $col ?>;"></div>
+                            <!-- Colored top bar -->
+                            <div style="height:4px;background:<?= $col ?>;"></div>
 
-                    <div class="card-body p-4">
-                        <!-- Label + Default badge -->
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                            <div style="width:40px;height:40px;border-radius:10px;background:<?= $bg ?>;display:flex;align-items:center;justify-content:center;">
-                                <i class="fas <?= $ico ?>" style="color:<?= $col ?>;font-size:1rem;"></i>
+                            <div class="card-body p-4">
+                                <!-- Label + Default badge -->
+                                <div class="d-flex align-items-center gap-2 mb-3">
+                                    <div style="width:40px;height:40px;border-radius:10px;background:<?= $bg ?>;display:flex;align-items:center;justify-content:center;">
+                                        <i class="fas <?= $ico ?>" style="color:<?= $col ?>;font-size:1rem;"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-0 text-capitalize"><?= htmlspecialchars($row['label'] ?? 'home') ?></h6>
+                                        <?php if (!empty($row['is_default'])): ?>
+                                            <span style="background:#dbeafe;color:#1d4ed8;font-size:.65rem;font-weight:700;padding:1px 8px;border-radius:20px;">DEFAULT</span>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+
+                                <p class="fw-bold mb-1" style="color:#1e293b;"><?= htmlspecialchars($row['name']) ?></p>
+                                <p class="text-muted small mb-1"><?= htmlspecialchars($row['address']) ?></p>
+                                <p class="text-muted small mb-1"><?= htmlspecialchars($row['city'] ?? '') ?>, <?= htmlspecialchars($row['state'] ?? '') ?> <?= htmlspecialchars($row['zip'] ?? '') ?></p>
+                                <p class="text-muted small mb-3"><i class="fas fa-phone me-1" style="font-size:.7rem;"></i><?= htmlspecialchars($row['phone']) ?></p>
+
+                                <div class="d-flex gap-2 flex-wrap">
+                                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3"
+                                        data-id="<?= (int)$row['id'] ?>"
+                                        data-label="<?= htmlspecialchars($row['label'] ?? 'home', ENT_QUOTES) ?>"
+                                        data-name="<?= htmlspecialchars($row['name'] ?? '', ENT_QUOTES) ?>"
+                                        data-phone="<?= htmlspecialchars($row['phone'] ?? '', ENT_QUOTES) ?>"
+                                        data-address="<?= htmlspecialchars($row['address'] ?? '', ENT_QUOTES) ?>"
+                                        data-city="<?= htmlspecialchars($row['city'] ?? '', ENT_QUOTES) ?>"
+                                        data-state="<?= htmlspecialchars($row['state'] ?? '', ENT_QUOTES) ?>"
+                                        data-zip="<?= htmlspecialchars($row['zip'] ?? '', ENT_QUOTES) ?>"
+                                        data-is-default="<?= !empty($row['is_default']) ? '1' : '0' ?>"
+                                        onclick="openEditModal(this)">
+                                        <i class="fas fa-edit me-1"></i>Edit
+                                    </button>
+                                    <?php if (empty($row['is_default'])): ?>
+                                        <button class="btn btn-sm btn-outline-success rounded-pill px-3"
+                                            onclick="setDefault(<?= $row['id'] ?>)">
+                                            <i class="fas fa-star me-1"></i>Set Default
+                                        </button>
+                                    <?php endif; ?>
+                                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                        onclick="confirmDelete(<?= $row['id'] ?>)">
+                                        <i class="fas fa-trash me-1"></i>Delete
+                                    </button>
+                                </div>
                             </div>
-                            <div>
-                                <h6 class="fw-bold mb-0 text-capitalize"><?= htmlspecialchars($row['label'] ?? 'home') ?></h6>
-                                <?php if (!empty($row['is_default'])): ?>
-                                <span style="background:#dbeafe;color:#1d4ed8;font-size:.65rem;font-weight:700;padding:1px 8px;border-radius:20px;">DEFAULT</span>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-
-                        <p class="fw-bold mb-1" style="color:#1e293b;"><?= htmlspecialchars($row['name']) ?></p>
-                        <p class="text-muted small mb-1"><?= htmlspecialchars($row['address']) ?></p>
-                        <p class="text-muted small mb-1"><?= htmlspecialchars($row['city'] ?? '') ?>, <?= htmlspecialchars($row['state'] ?? '') ?> <?= htmlspecialchars($row['zip'] ?? '') ?></p>
-                        <p class="text-muted small mb-3"><i class="fas fa-phone me-1" style="font-size:.7rem;"></i><?= htmlspecialchars($row['phone']) ?></p>
-
-                        <div class="d-flex gap-2 flex-wrap">
-                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3"
-                                    onclick="openEditModal(<?= htmlspecialchars(json_encode($row), ENT_QUOTES) ?>)">
-                                <i class="fas fa-edit me-1"></i>Edit
-                            </button>
-                            <?php if (empty($row['is_default'])): ?>
-                            <button class="btn btn-sm btn-outline-success rounded-pill px-3"
-                                    onclick="setDefault(<?= $row['id'] ?>)">
-                                <i class="fas fa-star me-1"></i>Set Default
-                            </button>
-                            <?php endif; ?>
-                            <button class="btn btn-sm btn-outline-danger rounded-pill px-3"
-                                    onclick="confirmDelete(<?= $row['id'] ?>)">
-                                <i class="fas fa-trash me-1"></i>Delete
-                            </button>
                         </div>
                     </div>
-                </div>
+                <?php endforeach; ?>
             </div>
-            <?php endforeach; ?>
-        </div>
         <?php endif; ?>
     </div>
 </div>
@@ -133,12 +142,12 @@ ob_start();
                     <div class="col-md-6">
                         <label class="form-label fw-semibold small">Full Name *</label>
                         <input type="text" class="form-control" id="addName"
-                               value="<?= htmlspecialchars($user_info['fullname'] ?? '', ENT_QUOTES) ?>" placeholder="Full name" required>
+                            value="<?= htmlspecialchars($user_info['fullname'] ?? '', ENT_QUOTES) ?>" placeholder="Full name" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold small">Phone *</label>
                         <input type="tel" class="form-control" id="addPhone"
-                               value="<?= htmlspecialchars($user_info['mobile'] ?? '', ENT_QUOTES) ?>" placeholder="Phone number" required>
+                            value="<?= htmlspecialchars($user_info['mobile'] ?? '', ENT_QUOTES) ?>" placeholder="Phone number" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold small">ZIP / Pincode</label>
@@ -256,119 +265,134 @@ ob_start();
 </div>
 
 <script>
-function showAddrToast(msg, ok) {
-    var t = document.getElementById('addrToast');
-    t.classList.remove('bg-success','bg-danger');
-    t.classList.add(ok ? 'bg-success' : 'bg-danger');
-    document.getElementById('addrToastMsg').textContent = msg;
-    new bootstrap.Toast(t, {delay:3200}).show();
-}
-
-// ── Add Address ──────────────────────────────────────────
-document.getElementById('saveAddressBtn').addEventListener('click', function() {
-    var name=document.getElementById('addName').value.trim(),
-        phone=document.getElementById('addPhone').value.trim(),
-        address=document.getElementById('addAddress').value.trim(),
-        city=document.getElementById('addCity').value.trim(),
-        state=document.getElementById('addState').value.trim();
-    if (!name||!phone||!address||!city||!state) {
-        document.getElementById('addAddrMsg').innerHTML='<span class="text-danger">Please fill all required fields.</span>'; return;
+    function showAddrToast(msg, ok) {
+        var $t = $('#addrToast');
+        $t.removeClass('bg-success bg-danger').addClass(ok ? 'bg-success' : 'bg-danger');
+        $('#addrToastMsg').text(msg);
+        new bootstrap.Toast($t.get(0), {
+            delay: 3200
+        }).show();
     }
-    this.disabled=true;
-    $.post('address_handler.php', {
-        action:'add', label:document.getElementById('addLabel').value,
-        name, phone, address, city, state,
-        zip:document.getElementById('addZip').value.trim(),
-        is_default:document.getElementById('addIsDefault').checked ? 1 : 0
-    }, function(data) {
-        document.getElementById('saveAddressBtn').disabled=false;
-        if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('addAddressModal'))?.hide();
-            showAddrToast(data.message, true);
-            setTimeout(function(){ location.reload(); }, 700);
-        } else {
-            document.getElementById('addAddrMsg').innerHTML='<span class="text-danger">'+data.message+'</span>';
+
+    // ── Add Address ──────────────────────────────────────────
+    $('#saveAddressBtn').on('click', function() {
+        var name = $.trim($('#addName').val()),
+            phone = $.trim($('#addPhone').val()),
+            address = $.trim($('#addAddress').val()),
+            city = $.trim($('#addCity').val()),
+            state = $.trim($('#addState').val());
+        if (!name || !phone || !address || !city || !state) {
+            $('#addAddrMsg').html('<span class="text-danger">Please fill all required fields.</span>');
+            return;
         }
-    }, 'json').fail(function() {
-        document.getElementById('saveAddressBtn').disabled=false;
-        document.getElementById('addAddrMsg').innerHTML='<span class="text-danger">Error. Try again.</span>';
+        $(this).prop('disabled', true);
+        $.post('address_handler.php', {
+            action: 'add',
+            label: $('#addLabel').val(),
+            name,
+            phone,
+            address,
+            city,
+            state,
+            zip: $.trim($('#addZip').val()),
+            is_default: $('#addIsDefault').is(':checked') ? 1 : 0
+        }, function(response) {
+            $('#saveAddressBtn').prop('disabled', false);
+            if (response == 'success') {
+                bootstrap.Modal.getInstance($('#addAddressModal').get(0))?.hide();
+                location.reload();
+            } else {
+                $('#addAddrMsg').html('<span class="text-danger">' + response + '</span>');
+            }
+        }, 'text');
     });
-});
 
-// ── Open Edit Modal ──────────────────────────────────────
-function openEditModal(row) {
-    document.getElementById('editAddrId').value    = row.id;
-    document.getElementById('editLabel').value     = row.label || 'home';
-    document.getElementById('editName').value      = row.name;
-    document.getElementById('editPhone').value     = row.phone;
-    document.getElementById('editAddress').value   = row.address;
-    document.getElementById('editCity').value      = row.city || '';
-    document.getElementById('editState').value     = row.state || '';
-    document.getElementById('editZip').value       = row.zip || '';
-    document.getElementById('editIsDefault').checked = row.is_default == 1;
-    document.getElementById('editAddrMsg').innerHTML = '';
-    new bootstrap.Modal(document.getElementById('editAddressModal')).show();
-}
-
-// ── Update Address ───────────────────────────────────────
-document.getElementById('updateAddressBtn').addEventListener('click', function() {
-    var id=document.getElementById('editAddrId').value,
-        name=document.getElementById('editName').value.trim(),
-        phone=document.getElementById('editPhone').value.trim(),
-        address=document.getElementById('editAddress').value.trim(),
-        city=document.getElementById('editCity').value.trim(),
-        state=document.getElementById('editState').value.trim();
-    if (!name||!phone||!address||!city||!state) {
-        document.getElementById('editAddrMsg').innerHTML='<span class="text-danger">Please fill all required fields.</span>'; return;
+    // ── Open Edit Modal ──────────────────────────────────────
+    function openEditModal(button) {
+        var row = button.dataset;
+        $('#editAddrId').val(row.id || '');
+        $('#editLabel').val(row.label || 'home');
+        $('#editName').val(row.name || '');
+        $('#editPhone').val(row.phone || '');
+        $('#editAddress').val(row.address || '');
+        $('#editCity').val(row.city || '');
+        $('#editState').val(row.state || '');
+        $('#editZip').val(row.zip || '');
+        $('#editIsDefault').prop('checked', row.isDefault == '1');
+        $('#editAddrMsg').html('');
+        new bootstrap.Modal($('#editAddressModal').get(0)).show();
     }
-    this.disabled=true;
-    $.post('address_handler.php', {
-        action:'edit', id,
-        label:document.getElementById('editLabel').value,
-        name, phone, address, city, state,
-        zip:document.getElementById('editZip').value.trim(),
-        is_default:document.getElementById('editIsDefault').checked ? 1 : 0
-    }, function(data) {
-        document.getElementById('updateAddressBtn').disabled=false;
-        if (data.success) {
-            bootstrap.Modal.getInstance(document.getElementById('editAddressModal'))?.hide();
-            showAddrToast(data.message, true);
-            setTimeout(function(){ location.reload(); }, 700);
-        } else {
-            document.getElementById('editAddrMsg').innerHTML='<span class="text-danger">'+data.message+'</span>';
+
+    // ── Update Address ───────────────────────────────────────
+    $('#updateAddressBtn').on('click', function() {
+        var id = $('#editAddrId').val(),
+            name = $.trim($('#editName').val()),
+            phone = $.trim($('#editPhone').val()),
+            address = $.trim($('#editAddress').val()),
+            city = $.trim($('#editCity').val()),
+            state = $.trim($('#editState').val());
+        if (!name || !phone || !address || !city || !state) {
+            $('#editAddrMsg').html('<span class="text-danger">Please fill all required fields.</span>');
+            return;
         }
-    }, 'json').fail(function() {
-        document.getElementById('updateAddressBtn').disabled=false;
-        document.getElementById('editAddrMsg').innerHTML='<span class="text-danger">Error. Try again.</span>';
+        $(this).prop('disabled', true);
+        $.post('address_handler.php', {
+            action: 'edit',
+            id,
+            label: $('#editLabel').val(),
+            name,
+            phone,
+            address,
+            city,
+            state,
+            zip: $.trim($('#editZip').val()),
+            is_default: $('#editIsDefault').is(':checked') ? 1 : 0
+        }, function(response) {
+            $('#updateAddressBtn').prop('disabled', false);
+            if (response == 'success') {
+                bootstrap.Modal.getInstance($('#editAddressModal').get(0))?.hide();
+                location.reload();
+            } else {
+                $('#editAddrMsg').html('<span class="text-danger">' + response + '</span>');
+            }
+        }, 'text');
     });
-});
 
-// ── Delete ───────────────────────────────────────────────
-function confirmDelete(id) {
-    document.getElementById('deleteAddrId').value = id;
-    new bootstrap.Modal(document.getElementById('deleteAddrModal')).show();
-}
-document.getElementById('confirmDeleteAddrBtn').addEventListener('click', function() {
-    var id = document.getElementById('deleteAddrId').value;
-    this.disabled=true;
-    $.post('address_handler.php', {action:'delete', id}, function(data) {
-        bootstrap.Modal.getInstance(document.getElementById('deleteAddrModal'))?.hide();
-        document.getElementById('confirmDeleteAddrBtn').disabled=false;
-        if (data.success) {
-            showAddrToast(data.message, true);
-            document.getElementById('addr-grid-'+id)?.remove();
-            if (!document.querySelector('.address-card-sa')) location.reload();
-        } else showAddrToast(data.message, false);
-    }, 'json');
-});
+    // ── Delete ───────────────────────────────────────────────
+    function confirmDelete(id) {
+        $('#deleteAddrId').val(id);
+        new bootstrap.Modal($('#deleteAddrModal').get(0)).show();
+    }
+    $('#confirmDeleteAddrBtn').on('click', function() {
+        var id = $('#deleteAddrId').val();
+        $(this).prop('disabled', true);
+        $.post('address_handler.php', {
+            action: 'delete',
+            id
+        }, function(response) {
+            bootstrap.Modal.getInstance($('#deleteAddrModal').get(0))?.hide();
+            $('#confirmDeleteAddrBtn').prop('disabled', false);
+            if (response == 'success') {
+                location.reload();
+            } else {
+                showAddrToast(response.replace('error: ', ''), false);
+            }
+        }, 'text');
+    });
 
-// ── Set Default ──────────────────────────────────────────
-function setDefault(id) {
-    $.post('address_handler.php', {action:'set_default', id}, function(data) {
-        if (data.success) { showAddrToast('Default address updated!', true); setTimeout(function(){ location.reload(); }, 700); }
-        else showAddrToast(data.message, false);
-    }, 'json');
-}
+    // ── Set Default ──────────────────────────────────────────
+    function setDefault(id) {
+        $.post('address_handler.php', {
+            action: 'set_default',
+            id
+        }, function(response) {
+            if (response == 'success') {
+                location.reload();
+            } else {
+                showAddrToast(response.replace('error: ', ''), false);
+            }
+        }, 'text');
+    }
 </script>
 
 <?php

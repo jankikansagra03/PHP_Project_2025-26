@@ -113,6 +113,12 @@ if (isset($_SESSION['user'])) {
                                 </span>
                             </a>
                         </li>
+                        <!-- My Orders Icon -->
+                        <li class="nav-item me-1">
+                            <a href="my_orders.php" class="nav-link" title="My Orders">
+                                <i class="fas fa-box fs-5"></i>
+                            </a>
+                        </li>
                         <!-- Cart Icon -->
                         <li class="nav-item me-2">
                             <a href="cart.php" class="nav-link position-relative" title="My Cart">
@@ -176,28 +182,41 @@ if (isset($_SESSION['user'])) {
     </nav>
     <br>
     <div class="container">
-        <?php
-        if (isset($_COOKIE['success'])) {
-        ?>
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <strong>Success</strong> <?= $_COOKIE['success'] ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+
+        <!-- Flash Toast -->
+        <div class="position-fixed top-0 end-0 p-3" style="z-index:9999;">
+            <div id="flashToast" class="toast align-items-center text-white border-0 shadow-lg rounded-3" role="alert" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body fw-semibold small" id="flashToastMsg"></div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
             </div>
-        <?php
-
-        }
-
-        if (isset($_COOKIE['error'])) {
-        ?>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong>Error</strong> <?= $_COOKIE['error'] ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-
+        </div>
 
         <?php
+        $flash_msg = '';
+        $flash_ok  = true;
+        if (isset($_COOKIE['success']) && $_COOKIE['success'] !== '') {
+            $flash_msg = $_COOKIE['success'];
+            $flash_ok  = true;
+            setcookie('success', '', time() - 1, '/');
+        } elseif (isset($_COOKIE['error']) && $_COOKIE['error'] !== '') {
+            $flash_msg = $_COOKIE['error'];
+            $flash_ok  = false;
+            setcookie('error', '', time() - 1, '/');
         }
-        ?>
+        if ($flash_msg): ?>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var t = document.getElementById('flashToast');
+                    t.classList.add(<?= $flash_ok ? "'bg-success'" : "'bg-danger'" ?>);
+                    document.getElementById('flashToastMsg').textContent = <?= json_encode($flash_msg) ?>;
+                    new bootstrap.Toast(t, {
+                        delay: 3500
+                    }).show();
+                });
+            </script>
+        <?php endif; ?>
 
     </div>
     <!-- Main Content -->
@@ -255,6 +274,20 @@ if (isset($_SESSION['user'])) {
     </div>
 
     <!-- Bootstrap JS -->
+    <script>
+        window.parseAppReply = function(raw) {
+            var source = typeof raw === 'string' ? raw : '';
+            var params = new URLSearchParams(source);
+            var data = {};
+
+            params.forEach(function(value, key) {
+                data[key] = value;
+            });
+
+            data.success = data.success === '1';
+            return data;
+        };
+    </script>
     <script src="js/bootstrap.bundle.min.js"></script>
     <script src="js/theme-customizer.js"></script>
 </body>

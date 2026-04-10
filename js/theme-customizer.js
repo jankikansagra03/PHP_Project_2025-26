@@ -269,14 +269,25 @@
   function getSaved() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : {};
+      if (!raw) return {};
+
+      var params = new URLSearchParams(raw);
+      var saved = {};
+      params.forEach(function (value, key) {
+        saved[key] = value;
+      });
+      return saved;
     } catch (e) {
       return {};
     }
   }
 
   function saveTheme(tokens) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tokens));
+    var params = new URLSearchParams();
+    Object.keys(tokens).forEach(function (key) {
+      params.set(key, tokens[key]);
+    });
+    localStorage.setItem(STORAGE_KEY, params.toString());
   }
 
   function applyTheme(tokens) {

@@ -1,17 +1,18 @@
 <?php
+
 /**
  * cashfree_create_order.php
  * AJAX POST — Creates a pending DB order + Cashfree order.
- * Returns JSON { success, payment_session_id, cf_order_id, order_id }
+ * Returns a plain-text status reply.
  */
 session_start();
 include_once 'db_config.php';
 include_once 'payment_config.php';
 include_once 'order_helper.php';
-header('Content-Type: application/json');
+include_once 'response_helper.php';
 
 if (!isset($_SESSION['user'])) {
-    echo json_encode(['success' => false, 'message' => 'Please login to continue.']); exit;
+    send_status(false, 'Please login to continue.');
 }
 
 $email       = $_SESSION['user'];
@@ -20,7 +21,9 @@ $coupon_code = trim($_POST['coupon_code']  ?? '');
 
 // 1. Create pending order in DB
 $result = createPendingOrder($con, $email, 'cashfree', $address_id, $coupon_code);
-if (!$result['success']) { echo json_encode($result); exit; }
+if (!$result['success']) {
+    send_status(false, $result['message'] ?? 'Unable to create order.');
+}
 
 $order_id     = $result['order_id'];
 $order_number = $result['order_number'];
@@ -66,17 +69,13 @@ $cf = json_decode($response, true);
 if ($http_code !== 200 || empty($cf['payment_session_id'])) {
     // Mark the pending order as failed
     mysqli_query($con, "UPDATE orders SET payment_status='Failed', order_status='Cancelled' WHERE id=$order_id");
-    echo json_encode([
-        'success' => false,
-        'message' => 'Cashfree order creation failed: ' . ($cf['message'] ?? 'Unknown error'),
-    ]); exit;
+    send_status(false, 'Cashfree order creation failed: ' . ($cf['message'] ?? 'Unknown error'));
 }
 
 // Store mapping for verification
 $_SESSION['cf_pending'] = ['db_order_id' => $order_id, 'offer_id' => $result['offer_id']];
 
-echo json_encode([
-    'success'             => true,
+send_status(true, 'Cashfree order created successfully.', [
     'payment_session_id'  => $cf['payment_session_id'],
     'cf_order_id'         => $cf['cf_order_id'],
     'order_id'            => $order_id,
